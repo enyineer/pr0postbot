@@ -34,7 +34,6 @@ export class Bot {
 
         this.setupMyChatMemberAction(this.bot);
         this.setUpFilterCommand(this.bot);
-        this.setupStartCommand(this.bot);
 
         this.bot.catch((err) => {
             console.error(JSON.stringify(err, null, 2));
@@ -53,6 +52,7 @@ export class Bot {
                 case 'creator':
                 case 'member':
                     await this.telegramChatService.create({ id: ctx.chat.id });
+                    ctx.reply("Ich schicke euch jetzt die neusten beliebten Posts von Pr0gramm. Benutze /filter um die Filter anzupassen (nur Admins).");
                     console.log(`Joined chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`)
                     break;
                 case 'kicked':
@@ -159,10 +159,6 @@ export class Bot {
 
             await this.telegramChatService.updateLatestFilterMenuId(ctx.chat.id, filterMenuMessage.message_id);
         });
-    }
-
-    private setupStartCommand(bot: GrammyBot) {
-        bot.command("start", (ctx) => ctx.reply("Ich schicke euch jetzt die neusten beliebten Posts von Pr0gramm. Benutze /filter um die Filter anzupassen (nur Admins)."));
     }
 
     private setupPr0grammUpdateHandler(bot: GrammyBot) {
