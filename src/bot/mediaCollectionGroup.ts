@@ -41,10 +41,15 @@ export class MediaCollectionGroup {
     }
 
     public static fromItems(items: Pr0grammItem[]): MediaCollectionGroup {
-        if (process.env.PR0GRAMM_CDN === undefined) {
-            throw new Error("PR0GRAMM_CDN is not defined in .env");
+        if (process.env.PR0GRAMM_IMAGE_CDN === undefined) {
+            throw new Error("PR0GRAMM_IMAGE_CDN is not defined in .env");
         }
-        const pr0grammCdn = process.env.PR0GRAMM_CDN;
+        const pr0grammImageCdn = process.env.PR0GRAMM_IMAGE_CDN;
+
+        if (process.env.PR0GRAMM_VID_CDN === undefined) {
+            throw new Error("PR0GRAMM_VID_CDN is not defined in .env");
+        }
+        const pr0grammVidCdn = process.env.PR0GRAMM_VID_CDN;
 
         if (process.env.PR0GRAMM_SITE === undefined) {
             throw new Error("PR0GRAMM_SITE is not defined in .env");
@@ -54,12 +59,12 @@ export class MediaCollectionGroup {
         const newMediaCollectionGroup = new MediaCollectionGroup();
 
         for (const item of items) {
-            const imageUrl = `${pr0grammCdn}/${item.image}`;
             const postMarkdown = `<a href="${pr0grammSite}/top/${item.id}">Post</a>`;
             const userMarkdown = `<a href="${pr0grammSite}/user/${item.user}">${item.user}</a>`;
             const caption = `${postMarkdown} von ${userMarkdown}`;
     
             if (item.image.endsWith(".mp4")) {
+                const imageUrl = `${pr0grammVidCdn}/${item.image}`;
                 newMediaCollectionGroup.addVideo({
                     type: "video",
                     media: imageUrl,
@@ -67,6 +72,7 @@ export class MediaCollectionGroup {
                     parse_mode: "HTML",
                 });
             } else if (item.image.endsWith(".jpg") || item.image.endsWith(".png")) {
+                const imageUrl = `${pr0grammImageCdn}/${item.image}`;
                 if (this.shouldSendAsDocument(item.width, item.height)) {
                     newMediaCollectionGroup.addDocument({
                         type: "document",
