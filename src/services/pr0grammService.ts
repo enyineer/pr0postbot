@@ -105,11 +105,18 @@ export class Pr0grammService {
             const fetchedItems = await this.fetchItems();
             let foundItems = 0;
 
-            for (const item of fetchedItems.items) {
-                const itemId = item.id;
-                const existingItem = await this.pr0grammItemService.findUnique({ id: itemId });
+            const fetchedItemIds = fetchedItems.items.map(item => item.id);
 
-                if (existingItem !== null) {
+            // Find all items in database that do exist for the list of items we just got from the API
+            const existingItems = await this.pr0grammItemService.findMany({
+                id: {
+                    in: fetchedItemIds
+                }
+            });
+
+            for (const item of fetchedItems.items) {
+                // If the current item is in the list of existing items from the db, just skip
+                if (existingItems.findIndex(el => el.id === item.id) > -1) {
                     continue;
                 }
 

@@ -25,6 +25,12 @@ export class Pr0grammItemService {
         return await this.prisma.pr0grammItem.findUnique({ where });
     }
 
+    async findMany(where: Prisma.Pr0grammItemWhereInput) {
+        return await this.prisma.pr0grammItem.findMany({
+            where
+        });
+    }
+
     async update(update: Prisma.Pr0grammItemUpdateArgs) {
         return await this.prisma.pr0grammItem.update(update)
     }
