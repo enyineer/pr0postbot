@@ -7,7 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "prisma generate && prisma migrate deploy && yarn build && node dist/index.js",
+    "start": "prisma generate && prisma migrate deploy && yarn build && pm2 start ecosystem.config.js",
+    "stop": "pm2 stop ecosystem.config.js",
     "build": "rimraf dist && tsc",
     "lint": "eslint",
     "dev": "nodemon"
@@ -32,6 +33,7 @@
     "dotenv": "^16.0.0",
     "grammy": "^1.7.3",
     "node-fetch": "v2",
+    "pm2": "^5.2.0",
     "puppeteer": "^13.5.2",
     "rxjs": "^7.5.5"
   }
