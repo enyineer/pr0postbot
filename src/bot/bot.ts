@@ -189,6 +189,11 @@ export class Bot {
                             caption: caption,
                             parse_mode: 'HTML'
                         });
+                    } else if (update.image.endsWith(".gif")) {
+                        await bot.api.sendAnimation(parseInt(chat.id.toString()), imageUrl, {
+                            caption: caption,
+                            parse_mode: 'HTML'
+                        });
                     } else {
                         console.error(`Unknown file type for image ${update.image}`);
                     }
