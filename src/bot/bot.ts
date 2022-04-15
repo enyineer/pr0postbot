@@ -1,4 +1,4 @@
-import { Menu } from '@grammyjs/menu';
+import { Menu, MenuFlavor } from '@grammyjs/menu';
 import { apiThrottler } from '@grammyjs/transformer-throttler';
 import { Bot as GrammyBot, Context, Filter } from 'grammy'
 import { Pr0grammService } from '../services/pr0grammService';
@@ -65,83 +65,20 @@ export class Bot {
     }
 
     private setUpFilterCommand(bot: GrammyBot) {
-        const filters = new Filters(bot);
+        const filters = new Filters();
 
         const filtersMenu = new Menu("filters-menu", { autoAnswer: false })
             .text(
                 async (ctx) => ctx.chat && await filters.isFilterEnabled(ctx.chat.id, FilterTypes.SFW) ? "SFW ✅" : "SFW ❌",
-                async (ctx) => {
-                    if (await this.isMenuOutdated(ctx)) {
-                        return ctx.answerCallbackQuery({
-                            text: "Dieses Menü ist veraltet."
-                        });
-                    }
-                    if (!await this.isAdmin(ctx)) {
-                        return ctx.answerCallbackQuery({
-                            text: "Du bist kein Admin dieser Gruppe."
-                        });
-                    }
-                    try {
-                        ctx.chat && await filters.toggleFilter(ctx.chat.id, FilterTypes.SFW);
-                        await ctx.menu.update();
-                    } catch (err) {
-                       if (err instanceof Error) {
-                            return ctx.answerCallbackQuery({
-                                text: err.message
-                            });
-                       }
-                    }
-                }
+                async (ctx) => this.filterMenuCallbackHander(ctx, FilterTypes.SFW, filters)
             )
             .text(
                 async (ctx) => ctx.chat && await filters.isFilterEnabled(ctx.chat.id, FilterTypes.NSFW) ? "NSFW ✅" : "NSFW ❌",
-                async (ctx) => {
-                    if (await this.isMenuOutdated(ctx)) {
-                        return ctx.answerCallbackQuery({
-                            text: "Dieses Menü ist veraltet."
-                        });
-                    }
-                    if (!await this.isAdmin(ctx)) {
-                        return ctx.answerCallbackQuery({
-                            text: "Du bist kein Admin dieser Gruppe."
-                        });
-                    }
-                    try {
-                        ctx.chat && await filters.toggleFilter(ctx.chat.id, FilterTypes.NSFW);
-                        await ctx.menu.update();
-                    } catch (err) {
-                        if (err instanceof Error) {
-                            return ctx.answerCallbackQuery({
-                                text: err.message
-                            });
-                        }
-                    }
-                }
+                async (ctx) => this.filterMenuCallbackHander(ctx, FilterTypes.NSFW, filters)
             )
             .text(
                 async (ctx) => ctx.chat && await filters.isFilterEnabled(ctx.chat.id, FilterTypes.NSFL) ? "NSFL ✅" : "NSFL ❌",
-                async (ctx) => {
-                    if (await this.isMenuOutdated(ctx)) {
-                        return ctx.answerCallbackQuery({
-                            text: "Dieses Menü ist veraltet."
-                        });
-                    }
-                    if (!await this.isAdmin(ctx)) {
-                        return ctx.answerCallbackQuery({
-                            text: "Du bist kein Admin dieser Gruppe."
-                        });
-                    }
-                    try {
-                        ctx.chat && await filters.toggleFilter(ctx.chat.id, FilterTypes.NSFL);
-                        await ctx.menu.update();
-                    } catch (err) {
-                        if (err instanceof Error) {
-                            return ctx.answerCallbackQuery({
-                                text: err.message
-                            });
-                        }
-                    }
-                }
+                async (ctx) => this.filterMenuCallbackHander(ctx, FilterTypes.NSFL, filters)
             );
 
         bot.use(filtersMenu);
@@ -159,6 +96,29 @@ export class Bot {
 
             await this.telegramChatService.updateLatestFilterMenuId(ctx.chat.id, filterMenuMessage.message_id);
         });
+    }
+
+    private filterMenuCallbackHander = async (ctx: Filter<Context, "callback_query"> & MenuFlavor, type: FilterTypes, filters: Filters) => {
+        if (await this.isMenuOutdated(ctx)) {
+            return ctx.answerCallbackQuery({
+                text: "Dieses Menü ist veraltet."
+            });
+        }
+        if (!await this.isAdmin(ctx)) {
+            return ctx.answerCallbackQuery({
+                text: "Du bist kein Admin dieser Gruppe."
+            });
+        }
+        try {
+            ctx.chat && await filters.toggleFilter(ctx.chat.id, type);
+            await ctx.menu.update();
+        } catch (err) {
+            if (err instanceof Error) {
+                return ctx.answerCallbackQuery({
+                    text: err.message
+                });
+            }
+        }
     }
 
     private setupPr0grammUpdateHandler(bot: GrammyBot) {

@@ -1,13 +1,10 @@
-import { Bot } from 'grammy';
 import { TelegramChatService } from '../services/telegramChatService';
 
 export class Filters {
 
-    private readonly bot: Bot;
     private readonly telegramChatService: TelegramChatService;
 
-    constructor(bot: Bot) {
-        this.bot = bot;
+    constructor() {
         this.telegramChatService = new TelegramChatService();
     }
 
