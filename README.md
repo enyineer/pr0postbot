@@ -13,17 +13,17 @@ Um den Bot zu benutzen, musst du nur [@pr0postbot](https://t.me/pr0postbot) dire
 # Funktionen ⚙️
 ## Posts 🗒️
 
-Mit Hilfe des .env Files kann gewählt werden, ob nur "promotete" (beliebt), oder alle (neu) Posts erfasst werden sollen.
+Mit Hilfe des .env Files kann gewählt werden, ob nur "promotete" (beliebt), oder alle (neu) Posts erfasst werden sollen. Standardmäßig werden nur beliebte Posts erfasst, damit der Bot nicht zu viele Nachrichten sendet.
 
 ## Filter 👀
 
-Es kann je Chat gewählt werden, welche Content-Filter aktiv sein sollen. Dazu kann einfach der /filter command verwendet werden. In Gruppenchats ist die nur Admins erlaubt.
+Es kann je Chat gewählt werden, welche Content-Filter aktiv sein sollen. Dazu kann einfach der /filter command verwendet werden. In Gruppenchats ist dies nur Admins erlaubt.
 
 ## SQLite 📅
 
-Die Gruppen in denen der Bot Mitglied ist wird in einer SQLite Datenbank erfasst, um das Setup so einfach wie möglich zu halten.
+Die Gruppen in denen der Bot Mitglied ist werden in einer SQLite Datenbank erfasst, um das Setup so einfach wie möglich zu halten.
 
-Der Bot erfasst in dieser Datenbank zusätzlich jeden Post, den er auf pr0gramm gefunden hat, um keine doppelten Posts zu versenden. Die erste Suche nach dem Start des Bots löst keine Nachrichten aus, um Spam nach einer längeren Downtime zu vermeiden.
+Der Bot erfasst in dieser Datenbank zusätzlich jeden Post den er auf pr0gramm gefunden hat, um keine doppelten Posts zu versenden. Die erste Suche nach dem Start des Bots löst keine Nachrichten aus (auch wenn er die gefundenen Posts in die Datenbank speichert), um Spam nach einer längeren Downtime zu vermeiden.
 
 # How to start 🚀
 
