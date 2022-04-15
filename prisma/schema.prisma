@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("SQLITE_PATH")
+}
+
+model TelegramChat {
+  id                 BigInt   @id
+  sfw                Boolean  @default(true)
+  nsfw               Boolean  @default(false)
+  nsfl               Boolean  @default(false)
+  latestFilterMenuId BigInt   @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Pr0grammItem {
+  id        Int      @id
+  promoted  Int
+  userId    Int
+  up        Int
+  down      Int
+  created   Int
+  image     String
+  thumb     String
+  fullsize  String
+  width     Int
+  height    Int
+  audio     Boolean
+  source    String
+  flags     Int
+  user      String
+  mark      Int
+  gift      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

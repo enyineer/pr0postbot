@@ -1,0 +1,38 @@
+{
+  "name": "pr0postbot",
+  "version": "1.0.0",
+  "description": "A bot that scrapes pr0gramm.com and sends the newest post to groups",
+  "main": "dist/index.js",
+  "author": "enyineer",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "prisma migrate deploy && yarn build && node dist/index.js",
+    "build": "rimraf dist && tsc",
+    "lint": "eslint",
+    "dev": "nodemon"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.24",
+    "@types/node-fetch": "^2.6.1",
+    "@types/tough-cookie": "^4.0.2",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^8.13.0",
+    "nodemon": "^2.0.15",
+    "prisma": "^3.12.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "@grammyjs/menu": "^1.0.4",
+    "@grammyjs/transformer-throttler": "^1.1.2",
+    "@prisma/client": "^3.12.0",
+    "dotenv": "^16.0.0",
+    "grammy": "^1.7.3",
+    "node-fetch": "v2",
+    "puppeteer": "^13.5.2",
+    "rxjs": "^7.5.5"
+  }
+}
