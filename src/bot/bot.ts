@@ -184,7 +184,7 @@ export class Bot {
                             caption: caption,
                             parse_mode: 'HTML'
                         });
-                    } else if (update.image.endsWith(".jpg")) {
+                    } else if (update.image.endsWith(".jpg") || update.image.endsWith(".png")) {
                         await bot.api.sendPhoto(parseInt(chat.id.toString()), imageUrl, {
                             caption: caption,
                             parse_mode: 'HTML'
