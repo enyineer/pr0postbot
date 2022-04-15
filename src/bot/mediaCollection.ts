@@ -25,7 +25,7 @@ export class MediaCollection<T extends MediaType> {
 
     async send(bot: Bot, chatId: number) {
         // Chunks cannot be bigger than 10 items
-        for (const chunk of this.asChunks(4)) {
+        for (const chunk of this.asChunks(10)) {
             try {
                 // If chunks only include one item, we cannot send them as mediaGroup
                 if (chunk.length === 1) {
