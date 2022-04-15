@@ -1,6 +1,6 @@
 import { Menu, MenuFlavor } from '@grammyjs/menu';
 import { apiThrottler } from '@grammyjs/transformer-throttler';
-import { Bot as GrammyBot, Context, Filter } from 'grammy'
+import { Bot as GrammyBot, Context, Filter, InputFile } from 'grammy'
 import { Pr0grammService } from '../services/pr0grammService';
 import { TelegramChatService } from '../services/telegramChatService';
 import { Filters, FilterTypes } from './filters';
@@ -125,6 +125,11 @@ export class Bot {
         const itemUpdateObservable = this.pr0grammService.getItemObservable();
 
         itemUpdateObservable.subscribe(async (update) => {
+
+            const imageUrl = `${this.pr0grammCdn}/${update.image}`
+            const postMarkdown = `<a href="${this.pr0grammSite}/top/${update.id}">Post</a>`;
+            const userMarkdown = `<a href="${this.pr0grammSite}/user/${update.user}">${update.user}</a>`;
+            const caption = `${postMarkdown} von ${userMarkdown}`;
             
             const activeChats = await this.telegramChatService.findAll();
 
@@ -135,10 +140,6 @@ export class Bot {
                     nsfw: chat.nsfw,
                     nsfl: chat.nsfl
                 })) {
-                    const imageUrl = `${this.pr0grammCdn}/${update.image}`
-                    const postMarkdown = `<a href="${this.pr0grammSite}/top/${update.id}">Post</a>`;
-                    const userMarkdown = `<a href="${this.pr0grammSite}/user/${update.user}">${update.user}</a>`;
-                    const caption = `${postMarkdown} von ${userMarkdown}`;
                     if (update.image.endsWith(".mp4")) {
                         await bot.api.sendVideo(parseInt(chat.id.toString()), imageUrl, {
                             caption: caption,
