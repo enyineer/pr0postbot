@@ -145,13 +145,20 @@ export class Bot {
                             parse_mode: 'HTML'
                         });
                     } else if (update.image.endsWith(".jpg") || update.image.endsWith(".png")) {
-                        await bot.api.sendPhoto(parseInt(chat.id.toString()), imageUrl, {
-                            caption: caption,
-                            parse_mode: 'HTML'
-                        });
+                        if (this.shouldSendAsDocument(update.width, update.height)) {
+                            await bot.api.sendDocument(parseInt(chat.id.toString()), imageUrl, {
+                                caption,
+                                parse_mode: 'HTML'
+                            });
+                        } else {
+                            await bot.api.sendPhoto(parseInt(chat.id.toString()), imageUrl, {
+                                caption,
+                                parse_mode: 'HTML'
+                            });
+                        }
                     } else if (update.image.endsWith(".gif")) {
                         await bot.api.sendAnimation(parseInt(chat.id.toString()), imageUrl, {
-                            caption: caption,
+                            caption,
                             parse_mode: 'HTML'
                         });
                     } else {
@@ -204,6 +211,14 @@ export class Bot {
         }
 
         return false;
+    }
+
+    // Telegram compression is fine until images have one side that's a lot larger than the other
+    // If images are "too high", you should send them as documents so that text is still readable
+    private shouldSendAsDocument(width: number, height: number) {
+        const highestSize = Math.max(width, height);
+        const lowestSize = Math.min(width, height);
+        return Math.abs(highestSize / lowestSize) > 3;
     }
 
 }
