@@ -27,9 +27,10 @@ Der Bot erfasst in dieser Datenbank zusätzlich jeden Post den er auf pr0gramm g
 
 # How to start 🚀
 
-### Installieren der Abhängigkeiten
+### Installieren von Yarn und den Abhängigkeiten
 
 ```sh
+$ npm i -g yarn
 $ yarn
 ```
 
