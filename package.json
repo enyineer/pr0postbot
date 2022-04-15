@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "prisma migrate deploy && yarn build && node dist/index.js",
+    "start": "prisma generate && prisma migrate deploy && yarn build && node dist/index.js",
     "build": "rimraf dist && tsc",
     "lint": "eslint",
     "dev": "nodemon"
