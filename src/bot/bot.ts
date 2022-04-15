@@ -1,34 +1,20 @@
-import { Menu, MenuFlavor } from '@grammyjs/menu';
-import { apiThrottler } from '@grammyjs/transformer-throttler';
-import { Bot as GrammyBot, Context, Filter, InputFile } from 'grammy'
-import { Pr0grammService } from '../services/pr0grammService';
-import { TelegramChatService } from '../services/telegramChatService';
-import { Filters, FilterTypes } from './filters';
+import { Menu, MenuFlavor } from "@grammyjs/menu";
+import { apiThrottler } from "@grammyjs/transformer-throttler";
+import { Bot as GrammyBot, Context, Filter } from "grammy";
+import { Pr0grammService } from "../services/pr0grammService";
+import { TelegramChatService } from "../services/telegramChatService";
+import { Filters, FilterTypes } from "./filters";
 export class Bot {
-
     private readonly bot: GrammyBot;
     private readonly telegramChatService: TelegramChatService;
     private readonly pr0grammService: Pr0grammService;
 
-    private readonly pr0grammCdn: string;
-    private readonly pr0grammSite: string;
-
     constructor(botToken: string) {
-        if (process.env.PR0GRAMM_CDN === undefined) {
-            throw new Error("PR0GRAMM_CDN is not defined in .env");
-        }
-        this.pr0grammCdn = process.env.PR0GRAMM_CDN;
-
-        if (process.env.PR0GRAMM_SITE === undefined) {
-            throw new Error("PR0GRAMM_SITE is not defined in .env");
-        }
-        this.pr0grammSite = process.env.PR0GRAMM_SITE;
-
         this.telegramChatService = new TelegramChatService();
         this.pr0grammService = Pr0grammService.getInstance();
 
         this.bot = new GrammyBot(botToken);
-        
+
         const throttler = apiThrottler();
         this.bot.api.config.use(throttler);
 
@@ -37,7 +23,7 @@ export class Bot {
 
         this.bot.catch((err) => {
             console.error(JSON.stringify(err, null, 2));
-        })
+        });
 
         this.bot.start();
         console.log("Bot started");
@@ -47,18 +33,24 @@ export class Bot {
 
     private setupMyChatMemberAction(bot: GrammyBot) {
         bot.on("my_chat_member", async (ctx) => {
-            switch(ctx.myChatMember.new_chat_member.status) {
-                case 'administrator':
-                case 'creator':
-                case 'member':
+            switch (ctx.myChatMember.new_chat_member.status) {
+                case "administrator":
+                case "creator":
+                case "member":
                     await this.telegramChatService.create({ id: ctx.chat.id });
-                    ctx.reply("Ich schicke euch jetzt die neusten beliebten Posts von Pr0gramm. Benutze /filter um die Filter anzupassen (nur Admins).");
-                    console.log(`Joined chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`)
+                    ctx.reply(
+                        "Ich schicke euch jetzt die neusten beliebten Posts von Pr0gramm. Benutze /filter um die Filter anzupassen (nur Admins)."
+                    );
+                    console.log(
+                        `Joined chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`
+                    );
                     break;
-                case 'kicked':
-                case 'left':
+                case "kicked":
+                case "left":
                     await this.telegramChatService.delete({ id: ctx.chat.id });
-                    console.log(`Left chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`)
+                    console.log(
+                        `Left chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`
+                    );
                     break;
             }
         });
@@ -69,110 +61,110 @@ export class Bot {
 
         const filtersMenu = new Menu("filters-menu", { autoAnswer: false })
             .text(
-                async (ctx) => ctx.chat && await filters.isFilterEnabled(ctx.chat.id, FilterTypes.SFW) ? "SFW ✅" : "SFW ❌",
-                async (ctx) => this.filterMenuCallbackHander(ctx, FilterTypes.SFW, filters)
+                async (ctx) =>
+                    ctx.chat &&
+                        (await filters.isFilterEnabled(ctx.chat.id, FilterTypes.SFW))
+                        ? "SFW ✅"
+                        : "SFW ❌",
+                async (ctx) =>
+                    this.filterMenuCallbackHander(ctx, FilterTypes.SFW, filters)
             )
             .text(
-                async (ctx) => ctx.chat && await filters.isFilterEnabled(ctx.chat.id, FilterTypes.NSFW) ? "NSFW ✅" : "NSFW ❌",
-                async (ctx) => this.filterMenuCallbackHander(ctx, FilterTypes.NSFW, filters)
+                async (ctx) =>
+                    ctx.chat &&
+                        (await filters.isFilterEnabled(ctx.chat.id, FilterTypes.NSFW))
+                        ? "NSFW ✅"
+                        : "NSFW ❌",
+                async (ctx) =>
+                    this.filterMenuCallbackHander(ctx, FilterTypes.NSFW, filters)
             )
             .text(
-                async (ctx) => ctx.chat && await filters.isFilterEnabled(ctx.chat.id, FilterTypes.NSFL) ? "NSFL ✅" : "NSFL ❌",
-                async (ctx) => this.filterMenuCallbackHander(ctx, FilterTypes.NSFL, filters)
+                async (ctx) =>
+                    ctx.chat &&
+                        (await filters.isFilterEnabled(ctx.chat.id, FilterTypes.NSFL))
+                        ? "NSFL ✅"
+                        : "NSFL ❌",
+                async (ctx) =>
+                    this.filterMenuCallbackHander(ctx, FilterTypes.NSFL, filters)
             );
 
         bot.use(filtersMenu);
-        
+
         bot.command("filter", async (ctx) => {
             if (ctx.from === undefined) {
-                return ctx.reply("Ich kann leider nur auf Direktnachrichten reagieren.");
+                return ctx.reply(
+                    "Ich kann leider nur auf Direktnachrichten reagieren."
+                );
             }
 
-            if (!await this.isAdmin(ctx)) {
-                return ctx.reply("Die Filtereinstellungen dürfen nur durch Admins dieses Chats verändert werden.");
+            if (!(await this.isAdmin(ctx))) {
+                return ctx.reply(
+                    "Die Filtereinstellungen dürfen nur durch Admins dieses Chats verändert werden."
+                );
             }
 
-            const filterMenuMessage = await ctx.reply("Schalte Filter für die Posts ein oder aus.", { reply_markup: filtersMenu });
+            const filterMenuMessage = await ctx.reply(
+                "Schalte Filter für die Posts ein oder aus.",
+                { reply_markup: filtersMenu }
+            );
 
-            await this.telegramChatService.updateLatestFilterMenuId(ctx.chat.id, filterMenuMessage.message_id);
+            await this.telegramChatService.updateLatestFilterMenuId(
+                ctx.chat.id,
+                filterMenuMessage.message_id
+            );
         });
     }
 
-    private filterMenuCallbackHander = async (ctx: Filter<Context, "callback_query"> & MenuFlavor, type: FilterTypes, filters: Filters) => {
+    private filterMenuCallbackHander = async (
+        ctx: Filter<Context, "callback_query"> & MenuFlavor,
+        type: FilterTypes,
+        filters: Filters
+    ) => {
         if (await this.isMenuOutdated(ctx)) {
             return ctx.answerCallbackQuery({
-                text: "Dieses Menü ist veraltet."
+                text: "Dieses Menü ist veraltet.",
             });
         }
-        if (!await this.isAdmin(ctx)) {
+        if (!(await this.isAdmin(ctx))) {
             return ctx.answerCallbackQuery({
-                text: "Du bist kein Admin dieser Gruppe."
+                text: "Du bist kein Admin dieser Gruppe.",
             });
         }
         try {
-            ctx.chat && await filters.toggleFilter(ctx.chat.id, type);
+            ctx.chat && (await filters.toggleFilter(ctx.chat.id, type));
             await ctx.menu.update();
         } catch (err) {
             if (err instanceof Error) {
                 return ctx.answerCallbackQuery({
-                    text: err.message
+                    text: err.message,
                 });
             }
         }
-    }
+    };
 
     private setupPr0grammUpdateHandler(bot: GrammyBot) {
-        const itemUpdateObservable = this.pr0grammService.getItemObservable();
+        const updateObservable = this.pr0grammService.getUpdateObservable();
 
-        itemUpdateObservable.subscribe(async (update) => {
-
-            const imageUrl = `${this.pr0grammCdn}/${update.image}`
-            const postMarkdown = `<a href="${this.pr0grammSite}/top/${update.id}">Post</a>`;
-            const userMarkdown = `<a href="${this.pr0grammSite}/user/${update.user}">${update.user}</a>`;
-            const caption = `${postMarkdown} von ${userMarkdown}`;
-            
+        updateObservable.subscribe(async (update) => {
             const activeChats = await this.telegramChatService.findAll();
 
             for (const chat of activeChats) {
-                
-                if (Filters.isFlagMatchingFilters(update.flags, {
+                update.filter({
                     sfw: chat.sfw,
                     nsfw: chat.nsfw,
                     nsfl: chat.nsfl
-                })) {
-                    if (update.image.endsWith(".mp4")) {
-                        await bot.api.sendVideo(parseInt(chat.id.toString()), imageUrl, {
-                            caption: caption,
-                            parse_mode: 'HTML'
-                        });
-                    } else if (update.image.endsWith(".jpg") || update.image.endsWith(".png")) {
-                        if (this.shouldSendAsDocument(update.width, update.height)) {
-                            await bot.api.sendDocument(parseInt(chat.id.toString()), imageUrl, {
-                                caption,
-                                parse_mode: 'HTML'
-                            });
-                        } else {
-                            await bot.api.sendPhoto(parseInt(chat.id.toString()), imageUrl, {
-                                caption,
-                                parse_mode: 'HTML'
-                            });
-                        }
-                    } else if (update.image.endsWith(".gif")) {
-                        await bot.api.sendAnimation(parseInt(chat.id.toString()), imageUrl, {
-                            caption,
-                            parse_mode: 'HTML'
-                        });
-                    } else {
-                        console.error(`Unknown file type for image ${update.image}`);
-                    }
-                }
+                })
+                .toMediaCollectionGroup()
+                .send(bot, parseInt(chat.id.toString()));
             }
         });
 
         this.pr0grammService.start();
     }
 
-    private async isAdmin(ctx: Filter<Context, "message"> | Filter<Context, "callback_query">): Promise<boolean> {
+    private async isAdmin(
+        ctx: Filter<Context, "message"> | Filter<Context, "callback_query">
+    ): Promise<boolean> {
         if (ctx.chat === undefined) {
             return false;
         }
@@ -183,14 +175,19 @@ export class Bot {
 
         const chatMember = await ctx.getChatMember(ctx.from.id);
 
-        if (chatMember.status !== "administrator" && chatMember.status !== "creator") {
+        if (
+            chatMember.status !== "administrator" &&
+            chatMember.status !== "creator"
+        ) {
             return false;
         }
 
         return true;
     }
 
-    private async isMenuOutdated(ctx: Filter<Context, "callback_query">): Promise<boolean> {
+    private async isMenuOutdated(
+        ctx: Filter<Context, "callback_query">
+    ): Promise<boolean> {
         if (ctx.chat === undefined) {
             return true;
         }
@@ -207,19 +204,18 @@ export class Bot {
 
         const originatingMessageId = ctx.callbackQuery.message.message_id;
 
-        if (originatingMessageId === undefined || originatingMessageId !== parseInt(chat.latestFilterMenuId.toString())) {
+        if (
+            originatingMessageId === undefined ||
+            originatingMessageId !== parseInt(chat.latestFilterMenuId.toString())
+        ) {
             return true;
         }
 
         return false;
     }
 
-    // Telegram compression is fine until images have one side that's a lot larger than the other
-    // If images are "too high", you should send them as documents so that text is still readable
-    private shouldSendAsDocument(width: number, height: number) {
-        const highestSize = Math.max(width, height);
-        const lowestSize = Math.min(width, height);
-        return Math.abs(highestSize / lowestSize) > 3;
-    }
-
+    
 }
+
+
+

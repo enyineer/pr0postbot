@@ -63,11 +63,7 @@ export class Filters {
         }
     }
 
-    static isFlagMatchingFilters(flag: number, filters: {
-        sfw: boolean,
-        nsfw: boolean,
-        nsfl: boolean
-    }) {
+    static filterMatches(flag: number, filters: FilterOpts) {
         switch (flag) {
             case 1:
             case 8: // NSFP
@@ -84,4 +80,10 @@ export enum FilterTypes {
     SFW,
     NSFW,
     NSFL
+}
+
+export type FilterOpts = {
+    sfw: boolean;
+    nsfw: boolean;
+    nsfl: boolean;
 }

@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { Subject } from 'rxjs';
+import { Update } from '../bot/update';
 import { Pr0grammItemService } from './pr0grammItemService';
-
 export class Pr0grammService {
 
     private readonly itemsEndpoint: string;
@@ -9,13 +9,15 @@ export class Pr0grammService {
     private readonly promoted: string;
     private readonly pr0grammCookies: string;
 
-    private readonly pr0grammItemUpdateSubject: Subject<Pr0grammItem>;
+    private readonly updateSubject: Subject<Update>;
 
     private isStarted: boolean;
     private coldStart: boolean;
     private timer: NodeJS.Timer | null;
 
     private pr0grammItemService: Pr0grammItemService;
+
+    private updateIntervalInMinutes: number;
 
     private static instance: Pr0grammService;
    
@@ -26,14 +28,14 @@ export class Pr0grammService {
         return Pr0grammService.instance;
     }
 
-    public getItemObservable() {
-        return this.pr0grammItemUpdateSubject.asObservable();
+    public getUpdateObservable() {
+        return this.updateSubject.asObservable();
     }
 
     public start() {
         if (!this.isStarted) {
             this.processItems();
-            this.timer = setInterval(this.processItems, 60000);
+            this.timer = setInterval(this.processItems, this.updateIntervalInMinutes * 60 * 1000);
             this.isStarted = true;
         }
     }
@@ -46,10 +48,10 @@ export class Pr0grammService {
     }
 
     private constructor() {
-        this.pr0grammItemUpdateSubject = new Subject();
+        this.updateSubject = new Subject();
 
         this.isStarted = false;
-        this.coldStart = true;
+        this.coldStart = false;
         this.timer = null;
 
         this.pr0grammItemService = new Pr0grammItemService();
@@ -73,6 +75,11 @@ export class Pr0grammService {
             throw new Error("PR0GRAMM_COOKIES is not defined in .env");
         }
         this.pr0grammCookies = process.env.PR0GRAMM_COOKIES;
+
+        if (process.env.PR0GRAMM_UPDATE_INTERVAL_IN_MINUTES === undefined) {
+            throw new Error("PR0GRAMM_UPDATE_INTERVAL_IN_MINUTES is not defined in .env");
+        }
+        this.updateIntervalInMinutes = parseInt(process.env.PR0GRAMM_UPDATE_INTERVAL_IN_MINUTES);
     }
 
     private async fetchItems(): Promise<Pr0grammItemResponse> {
@@ -114,28 +121,36 @@ export class Pr0grammService {
                 }
             });
 
+            const newItems: Pr0grammItem[] = [];
+
             for (const item of fetchedItems.items) {
                 // If the current item is in the list of existing items from the db, just skip
                 if (existingItems.findIndex(el => el.id === item.id) > -1) {
                     continue;
                 }
 
-                foundItems++;
+                if (!this.validateItem(item)) {
+                    continue;
+                }
 
+                foundItems++;
+                
                 await this.pr0grammItemService.create(item);
 
-                // After the bot is started, we don't want all new items to be pushed to chats to prevent
-                // the bot from being rate limited. New items will only be added to the database as known items
-                // so that we don't send them with the next update period.
-                if (!this.coldStart) {
-                    this.pr0grammItemUpdateSubject.next(item);
-                }
+                newItems.push(item);
             }
 
             console.log(`Found ${foundItems} new items.`);
 
             if (this.coldStart) {
                 console.log(`Not broadcasting new items because coldStart is true.`);
+            }
+
+            // After the bot is started, we don't want all new items to be pushed to chats to prevent
+            // the bot from being rate limited. New items will only be added to the database as known items
+            // so that we don't send them with the next update period.
+            if (!this.coldStart) {
+                this.updateSubject.next(new Update(newItems));
             }
 
             this.coldStart = false;
@@ -145,6 +160,36 @@ export class Pr0grammService {
             }
         }
         console.log("Finished fetching updates.");
+    }
+
+    private validateItem(item: Pr0grammItem) {
+
+        if (item.id === undefined || item.id < 1) {
+            console.error(`Item has empty id: ${JSON.stringify(item, null, 2)}`);
+            return false;
+        }
+
+        if (item.user === undefined || item.user === "") {
+            console.error(`Item has empty user: ${JSON.stringify(item, null, 2)}`);
+            return false;
+        }
+
+        if (item.image === undefined || item.image === "") {
+            console.error(`Item has empty image: ${JSON.stringify(item, null, 2)}`);
+            return false;
+        }
+
+        if (item.height === undefined || item.height < 1) {
+            console.error(`Item has invalid height: ${JSON.stringify(item, null, 2)}`);
+            return false;
+        }
+
+        if (item.width === undefined || item.width < 1) {
+            console.error(`Item has invalid width: ${JSON.stringify(item, null, 2)}`);
+            return false;
+        }
+
+        return true;
     }
 
 }
