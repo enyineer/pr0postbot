@@ -70,6 +70,7 @@ export class Filters {
     }) {
         switch (flag) {
             case 1:
+            case 8: // NSFP
                 return filters.sfw;
             case 2:
                 return filters.nsfw;
