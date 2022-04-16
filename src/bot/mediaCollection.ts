@@ -1,5 +1,6 @@
 import { Bot, GrammyError } from 'grammy';
 import { InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo } from 'grammy/out/platform.node';
+import { Logger } from '../logger/logger';
 
 export class MediaCollection<T extends MediaType> {
 
@@ -61,7 +62,7 @@ export class MediaCollection<T extends MediaType> {
                 }
             } catch (err) {
                 if (err instanceof GrammyError) {
-                    console.error(`Could not send chunk<${chunk[0].type}> to chat ${chatId} (${err.message}): ${JSON.stringify(chunk, null, 2)}`)
+                    Logger.i.error(`Could not send chunk<${chunk[0].type}> to chat ${chatId} (${err.message})`, chunk)
                 }
             } finally {
                 await this.sleep(1000);

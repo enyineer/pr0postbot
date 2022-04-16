@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { Subject } from 'rxjs';
 import { Update } from '../bot/update';
+import { Logger } from '../logger/logger';
 import { Pr0grammItemService } from './pr0grammItemService';
 export class Pr0grammService {
 
@@ -107,7 +108,7 @@ export class Pr0grammService {
     }
 
     private processItems = async () => {
-        console.log("Fetching pr0gramm updates...");
+        Logger.i.info("Fetching pr0gramm updates...");
         try {
             const fetchedItems = await this.fetchItems();
             let foundItems = 0;
@@ -140,10 +141,10 @@ export class Pr0grammService {
                 newItems.push(item);
             }
 
-            console.log(`Found ${foundItems} new items.`);
+            Logger.i.info(`Found ${foundItems} new items.`);
 
             if (this.coldStart) {
-                console.log(`Not broadcasting new items because coldStart is true.`);
+                Logger.i.info(`Not broadcasting new items because coldStart is true.`);
             }
 
             // After the bot is started, we don't want all new items to be pushed to chats to prevent
@@ -156,36 +157,36 @@ export class Pr0grammService {
             this.coldStart = false;
         } catch (err) {
             if (err instanceof Error) {
-                console.error(`Could not fetch Pr0gramm update: ${err.message}`);
+                Logger.i.error(`Could not fetch Pr0gramm update: ${err.message}`);
             }
         }
-        console.log("Finished fetching updates.");
+        Logger.i.info("Finished fetching updates.");
     }
 
     private validateItem(item: Pr0grammItem) {
 
         if (item.id === undefined || item.id < 1) {
-            console.error(`Item has empty id: ${JSON.stringify(item, null, 2)}`);
+            Logger.i.error(`Item has empty id`, item);
             return false;
         }
 
         if (item.user === undefined || item.user === "") {
-            console.error(`Item has empty user: ${JSON.stringify(item, null, 2)}`);
+            Logger.i.error(`Item has empty user`, item);
             return false;
         }
 
         if (item.image === undefined || item.image === "") {
-            console.error(`Item has empty image: ${JSON.stringify(item, null, 2)}`);
+            Logger.i.error(`Item has empty image`, item);
             return false;
         }
 
         if (item.height === undefined || item.height < 1) {
-            console.error(`Item has invalid height: ${JSON.stringify(item, null, 2)}`);
+            Logger.i.error(`Item has invalid height`, item);
             return false;
         }
 
         if (item.width === undefined || item.width < 1) {
-            console.error(`Item has invalid width: ${JSON.stringify(item, null, 2)}`);
+            Logger.i.error(`Item has invalid width`, item);
             return false;
         }
 

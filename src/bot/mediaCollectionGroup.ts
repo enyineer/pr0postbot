@@ -1,5 +1,6 @@
 import { Bot } from 'grammy';
 import { InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo } from 'grammy/out/platform.node';
+import { Logger } from '../logger/logger';
 import { Pr0grammItem } from '../services/pr0grammService';
 import { MediaCollection } from './mediaCollection';
 
@@ -82,7 +83,7 @@ export class MediaCollectionGroup {
                     });
                 }
             } else {
-                console.error(`Unknown file type for image ${item.image}`);
+                Logger.i.error(`Unknown file type for image`, item);
             }
         }
 

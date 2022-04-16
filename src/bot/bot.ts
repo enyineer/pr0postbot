@@ -1,6 +1,7 @@
 import { Menu, MenuFlavor } from "@grammyjs/menu";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
 import { Bot as GrammyBot, Context, Filter } from "grammy";
+import { Logger } from '../logger/logger';
 import { Pr0grammService } from "../services/pr0grammService";
 import { TelegramChatService } from "../services/telegramChatService";
 import { Filters, FilterTypes } from "./filters";
@@ -22,11 +23,11 @@ export class Bot {
         this.setUpFilterCommand(this.bot);
 
         this.bot.catch((err) => {
-            console.error(JSON.stringify(err, null, 2));
+            Logger.i.error("Caught bot error", err);
         });
 
         this.bot.start();
-        console.log("Bot started");
+        Logger.i.info("Bot started");
 
         this.setupPr0grammUpdateHandler(this.bot);
     }
@@ -41,14 +42,14 @@ export class Bot {
                     ctx.reply(
                         "Ich schicke euch jetzt die neusten beliebten Posts von Pr0gramm. Benutze /filter um die Filter anzupassen (nur Admins)."
                     );
-                    console.log(
+                    Logger.i.info(
                         `Joined chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`
                     );
                     break;
                 case "kicked":
                 case "left":
                     await this.telegramChatService.delete({ id: ctx.chat.id });
-                    console.log(
+                    Logger.i.info(
                         `Left chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`
                     );
                     break;
