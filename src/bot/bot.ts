@@ -92,12 +92,6 @@ export class Bot {
         bot.use(filtersMenu);
 
         bot.command("filter", async (ctx) => {
-            if (ctx.from === undefined) {
-                return ctx.reply(
-                    "Ich kann leider nur auf Direktnachrichten reagieren."
-                );
-            }
-
             if (!(await this.isAdmin(ctx))) {
                 return ctx.reply(
                     "Die Filtereinstellungen dürfen nur durch Admins dieses Chats verändert werden."
@@ -164,9 +158,17 @@ export class Bot {
     }
 
     private async isAdmin(
-        ctx: Filter<Context, "message"> | Filter<Context, "callback_query">
+        ctx: Filter<Context, "message"> | Filter<Context, "callback_query"> | Filter<Context, "channel_post">
     ): Promise<boolean> {
         if (ctx.chat === undefined) {
+            return false;
+        }
+
+        if (ctx.from === undefined && ctx.chat.type === "channel") {
+            // Messages in channels are always from admins and we don't have from to identify them.
+            // Always treat channel messages as if they're from admins.
+            return true;
+        } else if (ctx.from === undefined) {
             return false;
         }
 
