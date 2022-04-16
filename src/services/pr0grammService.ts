@@ -51,7 +51,7 @@ export class Pr0grammService {
         this.updateSubject = new Subject();
 
         this.isStarted = false;
-        this.coldStart = false;
+        this.coldStart = true;
         this.timer = null;
 
         this.pr0grammItemService = new Pr0grammItemService();
