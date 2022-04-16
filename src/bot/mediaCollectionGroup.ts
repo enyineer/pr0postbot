@@ -7,14 +7,12 @@ export class MediaCollectionGroup {
 
     private readonly audios: MediaCollection<InputMediaAudio>;
     private readonly documents: MediaCollection<InputMediaDocument>;
-    private readonly photos: MediaCollection<InputMediaPhoto>;
-    private readonly videos: MediaCollection<InputMediaVideo>;
+    private readonly photosAndVideos: MediaCollection<InputMediaPhoto | InputMediaVideo>;
 
     private constructor() {
         this.audios = new MediaCollection();
         this.documents = new MediaCollection();
-        this.photos = new MediaCollection();
-        this.videos = new MediaCollection();
+        this.photosAndVideos = new MediaCollection();
     }
 
     private addAudio(audio: InputMediaAudio) {
@@ -25,19 +23,14 @@ export class MediaCollectionGroup {
         this.documents.addItem(document);
     }
 
-    private addPhoto(photo: InputMediaPhoto) {
-        this.photos.addItem(photo);
-    }
-
-    private addVideo(video: InputMediaVideo) {
-        this.videos.addItem(video);
+    private addPhotoOrVideo(photoOrVideo: InputMediaPhoto | InputMediaVideo) {
+        this.photosAndVideos.addItem(photoOrVideo);
     }
 
     async send(bot: Bot, chatId: number) {
         await this.audios.send(bot, chatId);
         await this.documents.send(bot, chatId);
-        await this.photos.send(bot, chatId);
-        await this.videos.send(bot, chatId);
+        await this.photosAndVideos.send(bot, chatId);
     }
 
     public static fromItems(items: Pr0grammItem[]): MediaCollectionGroup {
@@ -65,7 +58,7 @@ export class MediaCollectionGroup {
     
             if (item.image.endsWith(".mp4")) {
                 const imageUrl = `${pr0grammVidCdn}/${item.image}`;
-                newMediaCollectionGroup.addVideo({
+                newMediaCollectionGroup.addPhotoOrVideo({
                     type: "video",
                     media: imageUrl,
                     caption,
@@ -81,7 +74,7 @@ export class MediaCollectionGroup {
                         parse_mode: "HTML",
                     });
                 } else {
-                    newMediaCollectionGroup.addPhoto({
+                    newMediaCollectionGroup.addPhotoOrVideo({
                         type: "photo",
                         media: imageUrl,
                         caption,
