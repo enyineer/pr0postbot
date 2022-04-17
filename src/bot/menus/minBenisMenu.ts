@@ -60,7 +60,7 @@ export class MinBenisMenu extends CustomMenu {
 
                 const currentSettings = await this.settings.getSettings(ctx.chat.id);
 
-                return `➕ > ${currentSettings.maxAmount.toString()}`
+                return `➕ > ${currentSettings.minBenis.toString()}`
             },
             async (ctx) => {
                 if (ctx.chat === undefined) {
