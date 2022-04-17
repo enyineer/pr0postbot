@@ -174,6 +174,7 @@ export class Settings {
 
         switch(filter) {
             case FilterFlags.SFW:
+            case FilterFlags.NSFP:
                 return chat.sfw;
             case FilterFlags.NSFW:
                 return chat.nsfw;
@@ -184,12 +185,12 @@ export class Settings {
 
     static filterFlagMatches(flag: number, filters: FilterFlagOpts) {
         switch (flag) {
-            case 1:
-            case 8: // NSFP
+            case FilterFlags.SFW:
+            case FilterFlags.NSFP:
                 return filters.sfw;
-            case 2:
+            case FilterFlags.NSFW:
                 return filters.nsfw;
-            case 4:
+            case FilterFlags.NSFL:
                 return filters.nsfl;
         }
     }
@@ -202,9 +203,10 @@ export type ChatSettings = {
 }
 
 export enum FilterFlags {
-    SFW,
-    NSFW,
-    NSFL
+    SFW = 1,
+    NSFW = 2,
+    NSFL = 4,
+    NSFP = 8
 }
 
 export type FilterFlagOpts = {

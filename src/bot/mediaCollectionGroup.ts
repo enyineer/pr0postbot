@@ -7,34 +7,46 @@ import { MediaCollection, SendMediaCollectionResult } from './mediaCollection';
 
 export class MediaCollectionGroup {
 
-    private readonly audios: MediaCollection<InputMediaAudio & Pr0grammItemId>;
-    private readonly documents: MediaCollection<InputMediaDocument & Pr0grammItemId>;
-    private readonly photosAndVideos: MediaCollection<InputMediaPhoto & Pr0grammItemId | InputMediaVideo & Pr0grammItemId>;
+    private readonly _audios: MediaCollection<InputMediaAudio & Pr0grammItemId>;
+    private readonly _documents: MediaCollection<InputMediaDocument & Pr0grammItemId>;
+    private readonly _photosAndVideos: MediaCollection<InputMediaPhoto & Pr0grammItemId | InputMediaVideo & Pr0grammItemId>;
 
     private constructor() {
-        this.audios = new MediaCollection();
-        this.documents = new MediaCollection();
-        this.photosAndVideos = new MediaCollection();
+        this._audios = new MediaCollection();
+        this._documents = new MediaCollection();
+        this._photosAndVideos = new MediaCollection();
     }
 
     private addAudio(audio: InputMediaAudio & Pr0grammItemId) {
-        this.audios.addItem(audio);
+        this._audios.addItem(audio);
     }
 
     private addDocument(document: InputMediaDocument & Pr0grammItemId) {
-        this.documents.addItem(document);
+        this._documents.addItem(document);
     }
 
-    private addPhotoOrVideo(photoOrVideo: (InputMediaPhoto | InputMediaVideo) & Pr0grammItemId) {
-        this.photosAndVideos.addItem(photoOrVideo);
+    private addPhotoOrVideo(photoOrVideo: InputMediaPhoto & Pr0grammItemId | InputMediaVideo & Pr0grammItemId) {
+        this._photosAndVideos.addItem(photoOrVideo);
     }
 
     async send(bot: Bot, chatId: number): Promise<SendMediaCollectionGroupResult> {
         return {
-            audios: await this.audios.send(bot, chatId),
-            documents: await this.documents.send(bot, chatId),
-            photosAndVideos: await this.photosAndVideos.send(bot, chatId)
+            audios: await this._audios.send(bot, chatId),
+            documents: await this._documents.send(bot, chatId),
+            photosAndVideos: await this._photosAndVideos.send(bot, chatId)
         }
+    }
+
+    get audios() {
+        return this._audios;
+    }
+
+    get documents() {
+        return this._documents;
+    }
+
+    get photosAndVideos() {
+        return this._photosAndVideos;
     }
 
     public static fromItems(items: Pr0grammItem[]): MediaCollectionGroup {

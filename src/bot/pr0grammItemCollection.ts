@@ -6,24 +6,24 @@ import { SystemService } from '../services/logic/systemService';
 
 export class Pr0grammItemCollection {
 
-    private readonly items: Pr0grammItem[];
+    private readonly _items: Pr0grammItem[];
 
     constructor(items: Pr0grammItem[]) {
-        this.items = items;
+        this._items = items;
     }
 
     filterByFlags(filterFlags: FilterFlagOpts) {
         if (filterFlags.sfw && filterFlags.nsfw && filterFlags.nsfl) {
             return this;
         }
-        return new Pr0grammItemCollection(this.items.filter(el => Settings.filterFlagMatches(el.flags, filterFlags)));
+        return new Pr0grammItemCollection(this._items.filter(el => Settings.filterFlagMatches(el.flags, filterFlags)));
     }
 
     filterByBenis(minBenis: number) {
         if (minBenis === 0) {
             return this;
         }
-        return new Pr0grammItemCollection(this.items.filter(el => el.up - el.down > minBenis));
+        return new Pr0grammItemCollection(this._items.filter(el => el.up - el.down >= minBenis));
     }
 
     // Removes all ids that are provided
@@ -31,15 +31,15 @@ export class Pr0grammItemCollection {
         if (ids.length === 0) {
             return this;
         }
-        return new Pr0grammItemCollection(this.items.filter(el => !ids.includes(el.id)));
+        return new Pr0grammItemCollection(this._items.filter(el => !ids.includes(el.id)));
     }
 
     filterNewerThan(date: DateTime) {
-        return new Pr0grammItemCollection(this.items.filter(el => date.diff(DateTime.fromJSDate(el.createdAt), "seconds").seconds > 0));
+        return new Pr0grammItemCollection(this._items.filter(el => date.diff(DateTime.fromJSDate(el.createdAt), "seconds").seconds > 0));
     }
 
     toMediaCollectionGroup() {
-        return MediaCollectionGroup.fromItems(this.items);
+        return MediaCollectionGroup.fromItems(this._items);
     }
 
     filterHighestBenis(amount: number) {
@@ -50,7 +50,7 @@ export class Pr0grammItemCollection {
         }
 
         // Sort by benis
-        const sortedByBenis = [...this.items].sort((a, b) => {
+        const sortedByBenis = [...this._items].sort((a, b) => {
             const aBenis = a.up - a.down;
             const bBenis = b.up - b.down;
             if (aBenis > bBenis) {
@@ -92,6 +92,10 @@ export class Pr0grammItemCollection {
     }
 
     get length() {
-        return this.items.length;
+        return this._items.length;
+    }
+
+    get items(): Pr0grammItem[] {
+        return this._items;
     }
 }

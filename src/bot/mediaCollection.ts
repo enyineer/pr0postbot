@@ -5,21 +5,25 @@ import { Pr0grammItemId } from './mediaCollectionGroup';
 
 export class MediaCollection<T extends MediaType & Pr0grammItemId> {
 
-    private readonly collection: T[];
+    private readonly _collection: T[];
 
     constructor() {
-        this.collection = [];
+        this._collection = [];
     }
 
     addItem(item: T) {
-        this.collection.push(item);
+        this._collection.push(item);
+    }
+
+    get collection() {
+        return this._collection;
     }
 
     private asChunks(chunkSize: number) {
         const chunks: T[][] = [];
 
-        for (let i = 0; i < this.collection.length; i += chunkSize) {
-            chunks.push(this.collection.slice(i, i + chunkSize));
+        for (let i = 0; i < this._collection.length; i += chunkSize) {
+            chunks.push(this._collection.slice(i, i + chunkSize));
         }
 
         return chunks;
@@ -52,6 +56,7 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
                                 caption: item.caption,
                                 parse_mode: 'HTML'
                             });
+                            successfullySentItems.push(item);
                         } catch (err) {
                             failedSentItems.push(item);
                             Logger.i.error(`Could not send item`, item, err);
@@ -63,6 +68,7 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
                                 caption: item.caption,
                                 parse_mode: 'HTML'
                             });
+                            successfullySentItems.push(item);
                         } catch (err) {
                             failedSentItems.push(item);
                             Logger.i.error(`Could not send item`, item, err);
@@ -74,6 +80,7 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
                                 caption: item.caption,
                                 parse_mode: 'HTML'
                             });
+                            successfullySentItems.push(item);
                         } catch (err) {
                             failedSentItems.push(item);
                             Logger.i.error(`Could not send item`, item, err);
@@ -83,6 +90,7 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
             } else {
                 try {
                     await bot.api.sendMediaGroup(chatId, chunk);
+                    successfullySentItems.push(...chunk);
                 } catch (err) {
                     failedSentItems.push(...chunk);
                     Logger.i.error(`Could not send media group`, chunk, err);
