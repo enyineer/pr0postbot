@@ -42,7 +42,8 @@ export const createFakeItem = (opts: {
         updatedAt: opts.updatedAt?.toJSDate() || DateTime.now().toJSDate(),
         user: opts.user,
         userId: opts.userId,
-        width: opts.width
+        width: opts.width,
+        cold: false
     }
 }
 
