@@ -23,7 +23,6 @@ export class Pr0grammService {
 
     public async start(): Promise<EventEmitter> {
         if (!this.isStarted) {
-            await this.processItems();
             this.timer = setInterval(this.processItems, 5 * TimeUnitsInSeconds.MINUTE * 1000);
             this.isStarted = true;
             Logger.i.info("Started Pr0gramm loop.");
