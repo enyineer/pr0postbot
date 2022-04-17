@@ -13,6 +13,8 @@ import { EventEmitter } from 'stream';
 export class ChatService {
     private bot: Bot;
 
+    private isStarted: boolean;
+
     private pr0grammItemService: Pr0grammItemService;
     private telegramChatService: TelegramChatService;
     private shownItemsOnChatsService: ShownItemsOnChatsService;
@@ -29,12 +31,18 @@ export class ChatService {
     private constructor(bot: Bot) {
         this.bot = bot;
 
+        this.isStarted = false;
+
         this.pr0grammItemService = new Pr0grammItemService();
         this.telegramChatService = new TelegramChatService();
         this.shownItemsOnChatsService = new ShownItemsOnChatsService();
     }
 
     start(updateEvents: EventEmitter) {
+        if (this.isStarted) {
+            Logger.i.warn("Preventing start of ChatService because it has already been started once.");
+            return;
+        }
         updateEvents.on("pr0grammItemsUpdated", async () => {
             await this.processChats();
         });
