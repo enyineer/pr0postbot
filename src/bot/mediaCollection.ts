@@ -47,7 +47,7 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
                     await bot.api.sendMediaGroup(chatId, chunk);
                     successfullySentItems.push(...chunk);
                 } catch (err) {
-                    Logger.i.error(`Could not send media group, trying to send as single items`, chunk, err);
+                    Logger.i.warn(`Could not send media group, trying to send as single items`, chunk, err);
                     for (const item of chunk) {
                         if (await this.sendSingle(bot, chatId, item)) {
                             successfullySentItems.push(item);
