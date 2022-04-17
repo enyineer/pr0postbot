@@ -11,33 +11,52 @@ datasource db {
 }
 
 model TelegramChat {
-  id                 BigInt   @id
-  sfw                Boolean  @default(true)
-  nsfw               Boolean  @default(false)
-  nsfl               Boolean  @default(false)
-  latestFilterMenuId BigInt   @default(0)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                   BigInt              @id
+  sfw                  Boolean             @default(true)
+  nsfw                 Boolean             @default(false)
+  nsfl                 Boolean             @default(false)
+  latestSettingsMenuId BigInt              @default(0)
+  lastUpdate           DateTime            @default(now())
+  sendInterval         Int                 @default(300)
+  minBenis             Int                 @default(0)
+  maxAmount            Int                 @default(16)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  shownItems           ShownItemsOnChats[]
+  active               Boolean             @default(true)
 }
 
 model Pr0grammItem {
-  id        Int      @id
-  promoted  Int
-  userId    Int
-  up        Int
-  down      Int
-  created   Int
-  image     String
-  thumb     String
-  fullsize  String
-  width     Int
-  height    Int
-  audio     Boolean
-  source    String
-  flags     Int
-  user      String
-  mark      Int
-  gift      Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int                 @id
+  promoted   Int
+  userId     Int
+  up         Int
+  down       Int
+  created    Int
+  image      String
+  thumb      String
+  fullsize   String
+  width      Int
+  height     Int
+  audio      Boolean
+  source     String
+  flags      Int
+  user       String
+  mark       Int
+  gift       Int
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  shownChats ShownItemsOnChats[]
+}
+
+model ShownItemsOnChats {
+  telegramChat   TelegramChat @relation(fields: [telegramChatId], references: [id])
+  telegramChatId BigInt
+  pr0grammItem   Pr0grammItem @relation(fields: [pr0grammItemId], references: [id])
+  pr0grammItemId Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  sendSuccess    Boolean
+
+  @@id(name: "chatItemId", fields: [telegramChatId, pr0grammItemId])
 }

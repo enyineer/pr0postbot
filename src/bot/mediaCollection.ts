@@ -1,8 +1,9 @@
-import { Bot, GrammyError } from 'grammy';
+import { Bot } from 'grammy';
 import { InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo } from 'grammy/out/platform.node';
 import { Logger } from '../logger/logger';
+import { Pr0grammItemId } from './mediaCollectionGroup';
 
-export class MediaCollection<T extends MediaType> {
+export class MediaCollection<T extends MediaType & Pr0grammItemId> {
 
     private readonly collection: T[];
 
@@ -24,49 +25,74 @@ export class MediaCollection<T extends MediaType> {
         return chunks;
     }
 
-    async send(bot: Bot, chatId: number) {
+    async send(bot: Bot, chatId: number): Promise<SendMediaCollectionResult<T>> {
+        const successfullySentItems: T[] = [];
+        const failedSentItems: T[] = [];
         // Chunks cannot be bigger than 10 items
         for (const chunk of this.asChunks(4)) {
-            try {
-                // If chunks only include one item, we cannot send them as mediaGroup
-                if (chunk.length === 1) {
-                    const item = chunk[0];
-                    switch (item.type) {
-                        case 'audio':
+            // If chunks only include one item, we cannot send them as mediaGroup
+            if (chunk.length === 1) {
+                const item = chunk[0];
+                switch (item.type) {
+                    case 'audio':
+                        try {
                             await bot.api.sendAudio(chatId, item.media, {
                                 caption: item.caption,
                                 parse_mode: 'HTML'
                             });
-                            break;
-                        case 'document':
+                            successfullySentItems.push(item);
+                        } catch (err) {
+                            failedSentItems.push(item);
+                            Logger.i.error(`Could not send item`, item, err);
+                        }
+                        break;
+                    case 'document':
+                        try {
                             await bot.api.sendDocument(chatId, item.media, {
                                 caption: item.caption,
                                 parse_mode: 'HTML'
                             });
-                            break;
-                        case 'photo':
+                        } catch (err) {
+                            failedSentItems.push(item);
+                            Logger.i.error(`Could not send item`, item, err);
+                        }
+                        break;
+                    case 'photo':
+                        try {
                             await bot.api.sendPhoto(chatId, item.media, {
                                 caption: item.caption,
                                 parse_mode: 'HTML'
                             });
-                            break;
-                        case 'video':
+                        } catch (err) {
+                            failedSentItems.push(item);
+                            Logger.i.error(`Could not send item`, item, err);
+                        }
+                        break;
+                    case 'video':
+                        try {
                             await bot.api.sendVideo(chatId, item.media, {
                                 caption: item.caption,
                                 parse_mode: 'HTML'
                             });
-                            break;
-                    }
-                } else {
+                        } catch (err) {
+                            failedSentItems.push(item);
+                            Logger.i.error(`Could not send item`, item, err);
+                        }
+                        break;
+                }
+            } else {
+                try {
                     await bot.api.sendMediaGroup(chatId, chunk);
+                } catch (err) {
+                    failedSentItems.push(...chunk);
+                    Logger.i.error(`Could not send media group`, chunk, err);
                 }
-            } catch (err) {
-                if (err instanceof GrammyError) {
-                    Logger.i.error(`Could not send chunk<${chunk[0].type}> to chat ${chatId} (${err.message})`, chunk)
-                }
-            } finally {
-                await this.sleep(1000);
             }
+            await this.sleep(1000);
+        }
+        return {
+            failedSentItems,
+            successfullySentItems
         }
     }
 
@@ -76,3 +102,8 @@ export class MediaCollection<T extends MediaType> {
 }
 
 export type MediaType = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo;
+
+export type SendMediaCollectionResult<T extends MediaType> = {
+    successfullySentItems: T[];
+    failedSentItems: T[];
+}

@@ -1,26 +1,30 @@
-import { Menu, MenuFlavor } from "@grammyjs/menu";
-import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { Bot as GrammyBot, Context, Filter } from "grammy";
+//import { apiThrottler } from "@grammyjs/transformer-throttler";
+import { Bot as GrammyBot } from "grammy";
 import { Logger } from '../logger/logger';
-import { Pr0grammService } from "../services/pr0grammService";
-import { TelegramChatService } from "../services/telegramChatService";
-import { Filters, FilterTypes } from "./filters";
+import { Pr0grammService } from "../services/logic/pr0grammService";
+import { TelegramChatService } from "../services/database/telegramChatService";
+import { ChatService } from '../services/logic/chatService';
+import { SettingsMenu } from './menus/settingsMenu';
+import { Utils } from './utils';
 export class Bot {
     private readonly bot: GrammyBot;
     private readonly telegramChatService: TelegramChatService;
     private readonly pr0grammService: Pr0grammService;
+    private readonly chatService: ChatService;
 
     constructor(botToken: string) {
-        this.telegramChatService = new TelegramChatService();
-        this.pr0grammService = Pr0grammService.getInstance();
-
         this.bot = new GrammyBot(botToken);
 
-        const throttler = apiThrottler();
-        this.bot.api.config.use(throttler);
+        this.telegramChatService = new TelegramChatService();
+        this.pr0grammService = Pr0grammService.getInstance();
+        // Todo: Move bot out of ChatService
+        this.chatService = ChatService.getInstance(this.bot);
+
+        //const throttler = apiThrottler();
+        //this.bot.api.config.use(throttler);
 
         this.setupMyChatMemberAction(this.bot);
-        this.setUpFilterCommand(this.bot);
+        this.setUpSettingsCommand(this.bot);
 
         this.bot.catch((err) => {
             Logger.i.error("Caught bot error", err);
@@ -29,7 +33,7 @@ export class Bot {
         this.bot.start();
         Logger.i.info("Bot started");
 
-        this.setupPr0grammUpdateHandler(this.bot);
+        this.startUpdateLoops();
     }
 
     private setupMyChatMemberAction(bot: GrammyBot) {
@@ -38,9 +42,9 @@ export class Bot {
                 case "administrator":
                 case "creator":
                 case "member":
-                    await this.telegramChatService.create({ id: ctx.chat.id });
+                    await this.telegramChatService.setActive(ctx.chat.id, true);
                     ctx.reply(
-                        "Ich schicke euch jetzt die neusten beliebten Posts von Pr0gramm. Benutze /filter um die Filter anzupassen (nur Admins)."
+                        "Ich schicke euch jetzt die neusten beliebten Posts von Pr0gramm. Benutze /settings um die Einstellungen anzupassen."
                     );
                     Logger.i.info(
                         `Joined chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`
@@ -48,7 +52,8 @@ export class Bot {
                     break;
                 case "kicked":
                 case "left":
-                    await this.telegramChatService.delete({ id: ctx.chat.id });
+                    // Only set chats to inactive to prevent foreign key inconsistencies
+                    await this.telegramChatService.setActive(ctx.chat.id, false);
                     Logger.i.info(
                         `Left chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`
                     );
@@ -57,167 +62,33 @@ export class Bot {
         });
     }
 
-    private setUpFilterCommand(bot: GrammyBot) {
-        const filters = new Filters();
+    private setUpSettingsCommand(bot: GrammyBot) {
+        bot.use(SettingsMenu.getInstance().getMenu());
 
-        const filtersMenu = new Menu("filters-menu", { autoAnswer: false })
-            .text(
-                async (ctx) =>
-                    ctx.chat &&
-                        (await filters.isFilterEnabled(ctx.chat.id, FilterTypes.SFW))
-                        ? "SFW ✅"
-                        : "SFW ❌",
-                async (ctx) =>
-                    this.filterMenuCallbackHander(ctx, FilterTypes.SFW, filters)
-            )
-            .text(
-                async (ctx) =>
-                    ctx.chat &&
-                        (await filters.isFilterEnabled(ctx.chat.id, FilterTypes.NSFW))
-                        ? "NSFW ✅"
-                        : "NSFW ❌",
-                async (ctx) =>
-                    this.filterMenuCallbackHander(ctx, FilterTypes.NSFW, filters)
-            )
-            .text(
-                async (ctx) =>
-                    ctx.chat &&
-                        (await filters.isFilterEnabled(ctx.chat.id, FilterTypes.NSFL))
-                        ? "NSFL ✅"
-                        : "NSFL ❌",
-                async (ctx) =>
-                    this.filterMenuCallbackHander(ctx, FilterTypes.NSFL, filters)
-            );
-
-        bot.use(filtersMenu);
-
-        bot.command("filter", async (ctx) => {
-            if (!(await this.isAdmin(ctx))) {
+        bot.command("settings", async (ctx) => {
+            if (!(await Utils.isAdmin(ctx))) {
                 return ctx.reply(
-                    "Die Filtereinstellungen dürfen nur durch Admins dieses Chats verändert werden."
+                    "Die Einstellungen dürfen nur durch Admins dieses Chats verändert werden."
                 );
             }
 
-            const filterMenuMessage = await ctx.reply(
-                "Schalte Filter für die Posts ein oder aus.",
-                { reply_markup: filtersMenu }
+            const settingsMessage = await ctx.reply(
+                SettingsMenu.getInstance().getMenuText(),
+                { reply_markup: SettingsMenu.getInstance().getMenu() }
             );
 
-            await this.telegramChatService.updateLatestFilterMenuId(
+            await this.telegramChatService.updateLatestSettingsMenuId(
                 ctx.chat.id,
-                filterMenuMessage.message_id
+                settingsMessage.message_id
             );
         });
     }
 
-    private filterMenuCallbackHander = async (
-        ctx: Filter<Context, "callback_query"> & MenuFlavor,
-        type: FilterTypes,
-        filters: Filters
-    ) => {
-        if (await this.isMenuOutdated(ctx)) {
-            return ctx.answerCallbackQuery({
-                text: "Dieses Menü ist veraltet.",
-            });
-        }
-        if (!(await this.isAdmin(ctx))) {
-            return ctx.answerCallbackQuery({
-                text: "Du bist kein Admin dieser Gruppe.",
-            });
-        }
-        try {
-            ctx.chat && (await filters.toggleFilter(ctx.chat.id, type));
-            await ctx.menu.update();
-        } catch (err) {
-            if (err instanceof Error) {
-                return ctx.answerCallbackQuery({
-                    text: err.message,
-                });
-            }
-        }
-    };
-
-    private setupPr0grammUpdateHandler(bot: GrammyBot) {
-        const updateObservable = this.pr0grammService.getUpdateObservable();
-
-        updateObservable.subscribe(async (update) => {
-            const activeChats = await this.telegramChatService.findAll();
-
-            for (const chat of activeChats) {
-                update.filter({
-                    sfw: chat.sfw,
-                    nsfw: chat.nsfw,
-                    nsfl: chat.nsfl
-                })
-                .toMediaCollectionGroup()
-                .send(bot, parseInt(chat.id.toString()));
-            }
-        });
-
+    private startUpdateLoops() {
         this.pr0grammService.start();
+        this.chatService.start();
     }
 
-    private async isAdmin(
-        ctx: Filter<Context, "message"> | Filter<Context, "callback_query"> | Filter<Context, "channel_post">
-    ): Promise<boolean> {
-        if (ctx.chat === undefined) {
-            return false;
-        }
-
-        if (ctx.from === undefined && ctx.chat.type === "channel") {
-            // Messages in channels are always from admins and we don't have from to identify them.
-            // Always treat channel messages as if they're from admins.
-            return true;
-        } else if (ctx.from === undefined) {
-            return false;
-        }
-
-        if (ctx.chat.type === "private") {
-            return true;
-        }
-
-        const chatMember = await ctx.getChatMember(ctx.from.id);
-
-        if (
-            chatMember.status !== "administrator" &&
-            chatMember.status !== "creator"
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private async isMenuOutdated(
-        ctx: Filter<Context, "callback_query">
-    ): Promise<boolean> {
-        if (ctx.chat === undefined) {
-            return true;
-        }
-
-        if (ctx.callbackQuery.message === undefined) {
-            return true;
-        }
-
-        const chat = await this.telegramChatService.findUnique({ id: ctx.chat.id });
-
-        if (chat === null) {
-            return true;
-        }
-
-        const originatingMessageId = ctx.callbackQuery.message.message_id;
-
-        if (
-            originatingMessageId === undefined ||
-            originatingMessageId !== parseInt(chat.latestFilterMenuId.toString())
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    
 }
 
 

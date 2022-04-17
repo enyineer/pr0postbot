@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
+import { DateTime } from 'luxon';
 import { Bot } from './bot/bot';
+import { SystemService } from './services/logic/systemService';
+
+SystemService.getInstance().lastStartup = DateTime.now();
 
 dotenv.config();
 
-if (process.env.BOT_TOKEN === undefined) {
-    throw new Error("BOT_TOKEN is not defined in .env");
-}
-
-new Bot(process.env.BOT_TOKEN);
+new Bot(SystemService.getInstance().BOT_TOKEN);

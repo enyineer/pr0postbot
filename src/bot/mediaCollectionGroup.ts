@@ -1,14 +1,15 @@
 import { Bot } from 'grammy';
 import { InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo } from 'grammy/out/platform.node';
 import { Logger } from '../logger/logger';
-import { Pr0grammItem } from '../services/pr0grammService';
-import { MediaCollection } from './mediaCollection';
+import { Pr0grammItem } from '../services/logic/pr0grammService';
+import { SystemService } from '../services/logic/systemService';
+import { MediaCollection, SendMediaCollectionResult } from './mediaCollection';
 
 export class MediaCollectionGroup {
 
-    private readonly audios: MediaCollection<InputMediaAudio>;
-    private readonly documents: MediaCollection<InputMediaDocument>;
-    private readonly photosAndVideos: MediaCollection<InputMediaPhoto | InputMediaVideo>;
+    private readonly audios: MediaCollection<InputMediaAudio & Pr0grammItemId>;
+    private readonly documents: MediaCollection<InputMediaDocument & Pr0grammItemId>;
+    private readonly photosAndVideos: MediaCollection<InputMediaPhoto & Pr0grammItemId | InputMediaVideo & Pr0grammItemId>;
 
     private constructor() {
         this.audios = new MediaCollection();
@@ -16,63 +17,52 @@ export class MediaCollectionGroup {
         this.photosAndVideos = new MediaCollection();
     }
 
-    private addAudio(audio: InputMediaAudio) {
+    private addAudio(audio: InputMediaAudio & Pr0grammItemId) {
         this.audios.addItem(audio);
     }
 
-    private addDocument(document: InputMediaDocument) {
+    private addDocument(document: InputMediaDocument & Pr0grammItemId) {
         this.documents.addItem(document);
     }
 
-    private addPhotoOrVideo(photoOrVideo: InputMediaPhoto | InputMediaVideo) {
+    private addPhotoOrVideo(photoOrVideo: (InputMediaPhoto | InputMediaVideo) & Pr0grammItemId) {
         this.photosAndVideos.addItem(photoOrVideo);
     }
 
-    async send(bot: Bot, chatId: number) {
-        await this.audios.send(bot, chatId);
-        await this.documents.send(bot, chatId);
-        await this.photosAndVideos.send(bot, chatId);
+    async send(bot: Bot, chatId: number): Promise<SendMediaCollectionGroupResult> {
+        return {
+            audios: await this.audios.send(bot, chatId),
+            documents: await this.documents.send(bot, chatId),
+            photosAndVideos: await this.photosAndVideos.send(bot, chatId)
+        }
     }
 
     public static fromItems(items: Pr0grammItem[]): MediaCollectionGroup {
-        if (process.env.PR0GRAMM_IMAGE_CDN === undefined) {
-            throw new Error("PR0GRAMM_IMAGE_CDN is not defined in .env");
-        }
-        const pr0grammImageCdn = process.env.PR0GRAMM_IMAGE_CDN;
-
-        if (process.env.PR0GRAMM_VID_CDN === undefined) {
-            throw new Error("PR0GRAMM_VID_CDN is not defined in .env");
-        }
-        const pr0grammVidCdn = process.env.PR0GRAMM_VID_CDN;
-
-        if (process.env.PR0GRAMM_SITE === undefined) {
-            throw new Error("PR0GRAMM_SITE is not defined in .env");
-        }
-        const pr0grammSite = process.env.PR0GRAMM_SITE;
-
         const newMediaCollectionGroup = new MediaCollectionGroup();
 
         for (const item of items) {
-            const postMarkdown = `<a href="${pr0grammSite}/top/${item.id}">Post</a>`;
-            const userMarkdown = `<a href="${pr0grammSite}/user/${item.user}">${item.user}</a>`;
+            const postMarkdown = `<a href="${SystemService.getInstance().PR0GRAMM_SITE}/top/${item.id}">Post</a>`;
+            const userMarkdown = `<a href="${SystemService.getInstance().PR0GRAMM_SITE}/user/${item.user}">${item.user}</a>`;
             const caption = `${postMarkdown} von ${userMarkdown}`;
     
             if (item.image.endsWith(".mp4")) {
-                const imageUrl = `${pr0grammVidCdn}/${item.image}`;
+                const imageUrl = `${SystemService.getInstance().PR0GRAMM_VID_CDN}/${item.image}`;
                 newMediaCollectionGroup.addPhotoOrVideo({
                     type: "video",
                     media: imageUrl,
                     caption,
                     parse_mode: "HTML",
+                    pr0grammId: item.id
                 });
             } else if (item.image.endsWith(".jpg") || item.image.endsWith(".png")) {
-                const imageUrl = `${pr0grammImageCdn}/${item.image}`;
+                const imageUrl = `${SystemService.getInstance().PR0GRAMM_IMAGE_CDN}/${item.image}`;
                 if (this.shouldSendAsDocument(item.width, item.height)) {
                     newMediaCollectionGroup.addDocument({
                         type: "document",
                         media: imageUrl,
                         caption,
                         parse_mode: "HTML",
+                        pr0grammId: item.id
                     });
                 } else {
                     newMediaCollectionGroup.addPhotoOrVideo({
@@ -80,6 +70,7 @@ export class MediaCollectionGroup {
                         media: imageUrl,
                         caption,
                         parse_mode: "HTML",
+                        pr0grammId: item.id
                     });
                 }
             } else {
@@ -97,4 +88,14 @@ export class MediaCollectionGroup {
         const lowestSize = Math.min(width, height);
         return Math.abs(highestSize / lowestSize) > 2.5;
     }
+}
+
+export type SendMediaCollectionGroupResult = {
+    audios: SendMediaCollectionResult<InputMediaAudio & Pr0grammItemId>;
+    documents: SendMediaCollectionResult<InputMediaDocument & Pr0grammItemId>;
+    photosAndVideos: SendMediaCollectionResult<InputMediaPhoto & Pr0grammItemId | InputMediaVideo & Pr0grammItemId>;
+}
+
+export type Pr0grammItemId = {
+    pr0grammId: number
 }

@@ -25,14 +25,16 @@ export class Pr0grammItemService {
         return await this.prisma.pr0grammItem.findUnique({ where });
     }
 
-    async findMany(where: Prisma.Pr0grammItemWhereInput) {
-        return await this.prisma.pr0grammItem.findMany({
-            where
-        });
+    async findMany(args: Prisma.Pr0grammItemFindManyArgs) {
+        return await this.prisma.pr0grammItem.findMany(args);
     }
 
     async update(update: Prisma.Pr0grammItemUpdateArgs) {
         return await this.prisma.pr0grammItem.update(update)
+    }
+
+    async upsert(upsert: Prisma.Pr0grammItemUpsertArgs) {
+        return await this.prisma.pr0grammItem.upsert(upsert);
     }
 
     async delete(where: Prisma.Pr0grammItemWhereUniqueInput) {

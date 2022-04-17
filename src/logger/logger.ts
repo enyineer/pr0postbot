@@ -13,7 +13,12 @@ export class Logger {
                     winston.format.json()
                 ),
                 transports: [
-                    new winston.transports.Console()
+                    new winston.transports.Console({
+                        format: winston.format.simple(),
+                    }),
+                    new winston.transports.File({
+                        filename: 'pr0postbot.log'
+                    })
                 ],
             });
         }
