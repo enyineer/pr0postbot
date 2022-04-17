@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import { FilterFlagOpts as FilterFlagOpts, Settings } from './settings/settings';
 import { MediaCollectionGroup } from './mediaCollectionGroup';
 import { SystemService } from '../services/logic/systemService';
+import { Logger } from '../logger/logger';
 
 export class Pr0grammItemCollection {
 
@@ -13,29 +14,44 @@ export class Pr0grammItemCollection {
     }
 
     filterByFlags(filterFlags: FilterFlagOpts) {
+        Logger.i.debug(`Before filterByFlags: ${this.items.length}`);
         if (filterFlags.sfw && filterFlags.nsfw && filterFlags.nsfl) {
+            Logger.i.debug(`Filter not applied.`);
             return this;
         }
-        return new Pr0grammItemCollection(this._items.filter(el => Settings.filterFlagMatches(el.flags, filterFlags)));
+        const newCollection = new Pr0grammItemCollection(this._items.filter(el => Settings.filterFlagMatches(el.flags, filterFlags)));
+        Logger.i.debug(`After filterByFlags: ${this.items.length}`);
+        return newCollection;
     }
 
     filterByBenis(minBenis: number) {
+        Logger.i.debug(`Before filterByBenis: ${this.items.length}`);
         if (minBenis === 0) {
+            Logger.i.debug(`Filter not applied.`);
             return this;
         }
-        return new Pr0grammItemCollection(this._items.filter(el => el.up - el.down >= minBenis));
+        const newCollection = new Pr0grammItemCollection(this._items.filter(el => el.up - el.down >= minBenis));
+        Logger.i.debug(`After filterByBenis: ${this.items.length}`);
+        return newCollection;
     }
 
     // Removes all ids that are provided
     removeIds(ids: number[]) {
+        Logger.i.debug(`Before removeIds: ${this.items.length}`);
         if (ids.length === 0) {
+            Logger.i.debug(`Filter not applied.`);
             return this;
         }
-        return new Pr0grammItemCollection(this._items.filter(el => !ids.includes(el.id)));
+        const newCollection = new Pr0grammItemCollection(this._items.filter(el => !ids.includes(el.id)));
+        Logger.i.debug(`After removeIds: ${this.items.length}`);
+        return newCollection;
     }
 
     filterNewerThan(date: DateTime) {
-        return new Pr0grammItemCollection(this._items.filter(el => date.diff(DateTime.fromJSDate(el.createdAt), "seconds").seconds > 0));
+        Logger.i.debug(`Before filterNewerThan: ${this.items.length}`);
+        const newCollection = new Pr0grammItemCollection(this._items.filter(el => date.diff(DateTime.fromJSDate(el.createdAt), "seconds").seconds > 0));
+        Logger.i.debug(`After filterNewerThan: ${this.items.length}`);
+        return newCollection;
     }
 
     toMediaCollectionGroup() {
@@ -43,6 +59,7 @@ export class Pr0grammItemCollection {
     }
 
     filterHighestBenis(amount: number) {
+        Logger.i.debug(`Before filterHighestBenis: ${this.items.length}`);
         // If no max amount is set or if it exceeds the environment configured amount
         // only take max amount of posts with highest benises nonetheless
         if (amount === 0 || amount > SystemService.getInstance().MAX_ITEM_AMOUNT) {
@@ -88,7 +105,9 @@ export class Pr0grammItemCollection {
             }
         })
 
-        return new Pr0grammItemCollection(sortedByAge);
+        const newCollection = new Pr0grammItemCollection(sortedByAge);
+        Logger.i.debug(`After filterHighestBenis: ${this.items.length}`);
+        return newCollection;
     }
 
     get length() {

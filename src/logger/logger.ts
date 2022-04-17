@@ -11,6 +11,7 @@ export class Logger {
                 transports: [
                     new winston.transports.Console({
                         format: winston.format.simple(),
+                        level: 'debug'
                     }),
                     new winston.transports.File({
                         filename: 'pr0postbot.log',
