@@ -49,7 +49,7 @@ export class Pr0grammItemCollection {
 
     filterNewerThan(date: DateTime) {
         Logger.i.debug(`Before filterNewerThan: ${this.items.length}`);
-        const newCollection = new Pr0grammItemCollection(this._items.filter(el => date.diff(DateTime.fromJSDate(el.createdAt), "seconds").seconds > 0));
+        const newCollection = new Pr0grammItemCollection(this._items.filter(el => DateTime.fromJSDate(el.createdAt).diff(date, "seconds").seconds > 0));
         Logger.i.debug(`After filterNewerThan: ${this.items.length}`);
         return newCollection;
     }
