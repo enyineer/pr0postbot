@@ -20,7 +20,7 @@ export class Pr0grammItemCollection {
             return this;
         }
         const newCollection = new Pr0grammItemCollection(this._items.filter(el => Settings.filterFlagMatches(el.flags, filterFlags)));
-        Logger.i.debug(`After filterByFlags: ${this.items.length}`);
+        Logger.i.debug(`After filterByFlags: ${newCollection.items.length}`);
         return newCollection;
     }
 
@@ -31,7 +31,7 @@ export class Pr0grammItemCollection {
             return this;
         }
         const newCollection = new Pr0grammItemCollection(this._items.filter(el => el.up - el.down >= minBenis));
-        Logger.i.debug(`After filterByBenis: ${this.items.length}`);
+        Logger.i.debug(`After filterByBenis: ${newCollection.items.length}`);
         return newCollection;
     }
 
@@ -43,14 +43,14 @@ export class Pr0grammItemCollection {
             return this;
         }
         const newCollection = new Pr0grammItemCollection(this._items.filter(el => !ids.includes(el.id)));
-        Logger.i.debug(`After removeIds: ${this.items.length}`);
+        Logger.i.debug(`After removeIds: ${newCollection.items.length}`);
         return newCollection;
     }
 
     filterNewerThan(date: DateTime) {
         Logger.i.debug(`Before filterNewerThan: ${this.items.length}`);
         const newCollection = new Pr0grammItemCollection(this._items.filter(el => DateTime.fromJSDate(el.createdAt).diff(date, "seconds").seconds > 0));
-        Logger.i.debug(`After filterNewerThan: ${this.items.length}`);
+        Logger.i.debug(`After filterNewerThan: ${newCollection.items.length}`);
         return newCollection;
     }
 
@@ -106,7 +106,7 @@ export class Pr0grammItemCollection {
         })
 
         const newCollection = new Pr0grammItemCollection(sortedByAge);
-        Logger.i.debug(`After filterHighestBenis: ${this.items.length}`);
+        Logger.i.debug(`After filterHighestBenis: ${newCollection.items.length}`);
         return newCollection;
     }
 
