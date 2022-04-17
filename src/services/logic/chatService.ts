@@ -61,7 +61,7 @@ export class ChatService {
             }
         });
 
-        Logger.i.info(`Found ${itemsLast24HoursAfterStart.length} potential new items.`);
+        Logger.i.info(`Found ${itemsLast24HoursAfterStart.length} hot items from last 24 hours.`);
 
         const itemsCollection = new Pr0grammItemCollection(itemsLast24HoursAfterStart);
 
