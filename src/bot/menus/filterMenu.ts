@@ -51,8 +51,8 @@ export class FilterMenu extends CustomMenu {
             "Zurück",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
+                    await ctx.menu.back({ immediate: false });
                     await ctx.editMessageText(SettingsMenu.getInstance().getMenuText());
-                    await ctx.menu.back();
                 }
             }
         );

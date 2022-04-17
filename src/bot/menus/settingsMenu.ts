@@ -25,8 +25,8 @@ export class SettingsMenu extends CustomMenu {
             "👀 Filter",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
+                    await ctx.menu.nav(FilterMenu.getInstance().getMenuIdentifier(), { immediate: false });
                     await ctx.editMessageText(FilterMenu.getInstance().getMenuText());
-                    await ctx.menu.nav(FilterMenu.getInstance().getMenuIdentifier());
                 }
             }
         )
@@ -34,8 +34,8 @@ export class SettingsMenu extends CustomMenu {
             "⏲️ Intervall",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
+                    await ctx.menu.nav(SendIntervalMenu.getInstance().getMenuIdentifier(), { immediate: false });
                     await ctx.editMessageText(SendIntervalMenu.getInstance().getMenuText());
-                    await ctx.menu.nav(SendIntervalMenu.getInstance().getMenuIdentifier());
                 }
             }
         ).row()
@@ -43,8 +43,8 @@ export class SettingsMenu extends CustomMenu {
             "✉️ Max. Nachrichten",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
+                    await ctx.menu.nav(MaxAmountMenu.getInstance().getMenuIdentifier(), { immediate: false });
                     await ctx.editMessageText(MaxAmountMenu.getInstance().getMenuText());
-                    await ctx.menu.nav(MaxAmountMenu.getInstance().getMenuIdentifier());
                 }
             }
         )
@@ -52,8 +52,8 @@ export class SettingsMenu extends CustomMenu {
             "➕ Mindestbenis",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
+                    await ctx.menu.nav(MinBenisMenu.getInstance().getMenuIdentifier(), { immediate: false });
                     await ctx.editMessageText(MinBenisMenu.getInstance().getMenuText());
-                    await ctx.menu.nav(MinBenisMenu.getInstance().getMenuIdentifier());
                 }
             }
         ).row()

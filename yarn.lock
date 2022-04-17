@@ -331,6 +331,13 @@
   resolved "https://registry.yarnpkg.com/@grammyjs/menu/-/menu-1.0.4.tgz#7667642e462d374e55ea8b623cb3c39f0ace6aec"
   integrity sha512-olBm2KtX54xiYn9IPgAITCxubgR7+4SC0FvvXfrLzXToBNX/06dAIoC7Gzp60UBXPTKsCfLzTwDLisa1aq4pQg==
 
+"@grammyjs/runner@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@grammyjs/runner/-/runner-1.0.3.tgz#4f2d344774b3fc531a7c64ee97114da3faf342f3"
+  integrity sha512-XFDnLDJbJdCcyj9UDvJ3zUvJD416t+zwx9uKKuDVvWVc819RVA6D6UuinxCIFZxVkr1YL9gPh/dm6MUeyjkqzw==
+  dependencies:
+    abort-controller "^3.0.0"
+
 "@grammyjs/transformer-throttler@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@grammyjs/transformer-throttler/-/transformer-throttler-1.1.2.tgz#c3e61501f7811d37abf8095713fde6f7f52f69bc"

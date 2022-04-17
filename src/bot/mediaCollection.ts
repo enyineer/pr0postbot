@@ -96,16 +96,11 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
                     Logger.i.error(`Could not send media group`, chunk, err);
                 }
             }
-            await this.sleep(1000);
         }
         return {
             failedSentItems,
             successfullySentItems
         }
-    }
-
-    private sleep(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
 

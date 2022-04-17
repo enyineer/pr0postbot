@@ -6,6 +6,8 @@ import { TelegramChatService } from "../services/database/telegramChatService";
 import { ChatService } from '../services/logic/chatService';
 import { SettingsMenu } from './menus/settingsMenu';
 import { Utils } from './utils';
+import { apiThrottler } from '@grammyjs/transformer-throttler';
+import { run } from '@grammyjs/runner';
 export class Bot {
     private readonly bot: GrammyBot;
     private readonly telegramChatService: TelegramChatService;
@@ -14,6 +16,9 @@ export class Bot {
 
     constructor(botToken: string) {
         this.bot = new GrammyBot(botToken);
+
+        const throttler = apiThrottler();
+        this.bot.api.config.use(throttler);
 
         this.telegramChatService = new TelegramChatService();
         this.pr0grammService = Pr0grammService.getInstance();
@@ -30,7 +35,7 @@ export class Bot {
             Logger.i.error("Caught bot error", err);
         });
 
-        this.bot.start();
+        run(this.bot);
         Logger.i.info("Bot started");
 
         this.startUpdateLoops();

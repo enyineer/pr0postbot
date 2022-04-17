@@ -110,8 +110,8 @@ export class SendIntervalMenu extends CustomMenu {
             "Zurück",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
-                    await ctx.editMessageText(SettingsMenu.getInstance().getMenuText());
-                    await ctx.menu.back();
+                    await ctx.menu.back({ immediate: false });
+                    await ctx.editMessageText(SettingsMenu.getInstance().getMenuText())
                 }
             }
         );
