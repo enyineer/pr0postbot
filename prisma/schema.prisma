@@ -46,6 +46,7 @@ model Pr0grammItem {
   gift       Int
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
+  cold       Boolean             @default(false)
   shownChats ShownItemsOnChats[]
 }
 

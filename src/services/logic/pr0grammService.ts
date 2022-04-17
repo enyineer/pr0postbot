@@ -7,6 +7,7 @@ import { SystemService } from './systemService';
 export class Pr0grammService {
 
     private isStarted: boolean;
+    private isColdStart: boolean;
     private timer: NodeJS.Timer | null;
     private eventEmitter = new EventEmitter();
 
@@ -23,6 +24,7 @@ export class Pr0grammService {
 
     public async start(): Promise<EventEmitter> {
         if (!this.isStarted) {
+            await this.processItems();
             this.timer = setInterval(this.processItems, 5 * TimeUnitsInSeconds.MINUTE * 1000);
             this.isStarted = true;
             Logger.i.info("Started Pr0gramm loop.");
@@ -42,6 +44,7 @@ export class Pr0grammService {
 
     private constructor() {
         this.isStarted = false;
+        this.isColdStart = true;
         this.timer = null;
 
         this.pr0grammItemService = new Pr0grammItemService();
@@ -88,7 +91,10 @@ export class Pr0grammService {
                 }
 
                 await this.pr0grammItemService.upsert({
-                    create: item,
+                    create: {
+                        ...item,
+                        cold: this.isColdStart
+                    },
                     update: item,
                     where: {
                         id: item.id
@@ -101,7 +107,12 @@ export class Pr0grammService {
             }
         }
         Logger.i.info("Finished fetching updates.");
-        this.eventEmitter.emit('pr0grammItemsUpdated');
+        if (this.isColdStart) {
+            Logger.i.info("Setting isColdStart to false, next updates will be broadcasted.");
+            this.isColdStart = false;
+        } else {
+            this.eventEmitter.emit('pr0grammItemsUpdated');
+        }
     }
 
     private validateItem(item: Pr0grammItem) {

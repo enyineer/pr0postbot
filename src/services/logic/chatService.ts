@@ -53,6 +53,8 @@ export class ChatService {
 
         const itemsLast24HoursAfterStart = await this.pr0grammItemService.findMany({
             where: {
+                // Only get items that have not been processed while cold starting
+                cold: false,
                 // Fetch all items that we indexed over the last 24 hours
                 createdAt: {
                     gte: DateTime.now().minus({ day: 1 }).toJSDate(),
