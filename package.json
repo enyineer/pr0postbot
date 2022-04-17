@@ -7,11 +7,11 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "yarn && prisma generate && prisma migrate deploy && yarn build && pm2 start ecosystem.config.js",
+    "start": "pm2 start ecosystem.config.js",
     "stop": "pm2 stop ecosystem.config.js",
-    "update": "git pull && yarn stop && yarn start",
+    "update": "git pull && yarn stop && yarn build && yarn start",
     "test": "jest",
-    "build": "rimraf dist && tsc",
+    "build": "yarn && prisma generate && prisma migrate deploy && rimraf dist && tsc",
     "lint": "eslint",
     "dev": "nodemon"
   },
