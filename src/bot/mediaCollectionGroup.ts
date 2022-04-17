@@ -31,9 +31,9 @@ export class MediaCollectionGroup {
 
     async send(bot: Bot, chatId: number): Promise<SendMediaCollectionGroupResult> {
         return {
-            audios: await this._audios.send(bot, chatId),
-            documents: await this._documents.send(bot, chatId),
-            photosAndVideos: await this._photosAndVideos.send(bot, chatId)
+            audios: await this._audios.sendAll(bot, chatId),
+            documents: await this._documents.sendAll(bot, chatId),
+            photosAndVideos: await this._photosAndVideos.sendAll(bot, chatId)
         }
     }
 

@@ -29,7 +29,7 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
         return chunks;
     }
 
-    async send(bot: Bot, chatId: number): Promise<SendMediaCollectionResult<T>> {
+    async sendAll(bot: Bot, chatId: number): Promise<SendMediaCollectionResult<T>> {
         const successfullySentItems: T[] = [];
         const failedSentItems: T[] = [];
         // Chunks cannot be bigger than 10 items
@@ -37,69 +37,79 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
             // If chunks only include one item, we cannot send them as mediaGroup
             if (chunk.length === 1) {
                 const item = chunk[0];
-                switch (item.type) {
-                    case 'audio':
-                        try {
-                            await bot.api.sendAudio(chatId, item.media, {
-                                caption: item.caption,
-                                parse_mode: 'HTML'
-                            });
-                            successfullySentItems.push(item);
-                        } catch (err) {
-                            failedSentItems.push(item);
-                            Logger.i.error(`Could not send item`, item, err);
-                        }
-                        break;
-                    case 'document':
-                        try {
-                            await bot.api.sendDocument(chatId, item.media, {
-                                caption: item.caption,
-                                parse_mode: 'HTML'
-                            });
-                            successfullySentItems.push(item);
-                        } catch (err) {
-                            failedSentItems.push(item);
-                            Logger.i.error(`Could not send item`, item, err);
-                        }
-                        break;
-                    case 'photo':
-                        try {
-                            await bot.api.sendPhoto(chatId, item.media, {
-                                caption: item.caption,
-                                parse_mode: 'HTML'
-                            });
-                            successfullySentItems.push(item);
-                        } catch (err) {
-                            failedSentItems.push(item);
-                            Logger.i.error(`Could not send item`, item, err);
-                        }
-                        break;
-                    case 'video':
-                        try {
-                            await bot.api.sendVideo(chatId, item.media, {
-                                caption: item.caption,
-                                parse_mode: 'HTML'
-                            });
-                            successfullySentItems.push(item);
-                        } catch (err) {
-                            failedSentItems.push(item);
-                            Logger.i.error(`Could not send item`, item, err);
-                        }
-                        break;
+                if (await this.sendSingle(bot, chatId, item)) {
+                    successfullySentItems.push(item);
+                } else {
+                    failedSentItems.push(item);
                 }
             } else {
                 try {
                     await bot.api.sendMediaGroup(chatId, chunk);
                     successfullySentItems.push(...chunk);
                 } catch (err) {
-                    failedSentItems.push(...chunk);
-                    Logger.i.error(`Could not send media group`, chunk, err);
+                    Logger.i.error(`Could not send media group, trying to send as single items`, chunk, err);
+                    for (const item of chunk) {
+                        if (await this.sendSingle(bot, chatId, item)) {
+                            successfullySentItems.push(item);
+                        } else {
+                            failedSentItems.push(item);
+                        }
+                    }
                 }
             }
         }
         return {
             failedSentItems,
             successfullySentItems
+        }
+    }
+
+    private async sendSingle(bot: Bot, chatId: number, item: MediaType & Pr0grammItemId): Promise<boolean> {
+        switch (item.type) {
+            case 'audio':
+                try {
+                    await bot.api.sendAudio(chatId, item.media, {
+                        caption: item.caption,
+                        parse_mode: 'HTML'
+                    });
+                    return true;
+                } catch (err) {
+                    Logger.i.error(`Could not send item`, item, err);
+                    return false;
+                }
+            case 'document':
+                try {
+                    await bot.api.sendDocument(chatId, item.media, {
+                        caption: item.caption,
+                        parse_mode: 'HTML'
+                    });
+                    return true;
+                } catch (err) {
+                    Logger.i.error(`Could not send item`, item, err);
+                    return false;
+                }
+            case 'photo':
+                try {
+                    await bot.api.sendPhoto(chatId, item.media, {
+                        caption: item.caption,
+                        parse_mode: 'HTML'
+                    });
+                    return true;
+                } catch (err) {
+                    Logger.i.error(`Could not send item`, item, err);
+                    return false;
+                }
+            case 'video':
+                try {
+                    await bot.api.sendVideo(chatId, item.media, {
+                        caption: item.caption,
+                        parse_mode: 'HTML'
+                    });
+                    return true;
+                } catch (err) {
+                    Logger.i.error(`Could not send item`, item, err);
+                    return false;
+                }
         }
     }
 }
