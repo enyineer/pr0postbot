@@ -81,13 +81,7 @@ export class ChatService {
 
             // Skip this chat if the diff between the next update and now is greater than zero
             if (nextUpdate.diff(DateTime.now(), "seconds").seconds > 0) {
-                Logger.i.info(`Chat ${chat.id} not due yet. Next update at ${nextUpdate.setLocale("de-DE").toLocaleString({
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })}`);
+                Logger.i.info(`Chat ${chat.id} not due yet. Next update at ${nextUpdate.toISO()}`);
                 continue;
             }
 
