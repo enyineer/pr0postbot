@@ -8,16 +8,16 @@ export class Logger {
         if (Logger.instance === undefined) {
             Logger.instance = winston.createLogger({
                 level: 'info',
-                format: winston.format.combine(
-                    winston.format.timestamp(),
-                    winston.format.json()
-                ),
                 transports: [
                     new winston.transports.Console({
                         format: winston.format.simple(),
                     }),
                     new winston.transports.File({
-                        filename: 'pr0postbot.log'
+                        filename: 'pr0postbot.log',
+                        format: winston.format.combine(
+                            winston.format.timestamp(),
+                            winston.format.json()
+                        ),
                     })
                 ],
             });

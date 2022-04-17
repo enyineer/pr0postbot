@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import fetch from 'node-fetch';
 import { TimeUnitsInSeconds } from '../../bot/settings/timeContainer';
 import { Logger } from '../../logger/logger';
@@ -7,6 +8,7 @@ export class Pr0grammService {
 
     private isStarted: boolean;
     private timer: NodeJS.Timer | null;
+    private eventEmitter = new EventEmitter();
 
     private pr0grammItemService: Pr0grammItemService;
 
@@ -19,13 +21,16 @@ export class Pr0grammService {
         return Pr0grammService.instance;
     }
 
-    public async start() {
+    public async start(): Promise<EventEmitter> {
         if (!this.isStarted) {
             await this.processItems();
             this.timer = setInterval(this.processItems, 5 * TimeUnitsInSeconds.MINUTE * 1000);
             this.isStarted = true;
             Logger.i.info("Started Pr0gramm loop.");
+        } else {
+            Logger.i.info("Pr0gramm loop is already started.");
         }
+        return this.eventEmitter;
     }
 
     public stop() {
@@ -97,6 +102,7 @@ export class Pr0grammService {
             }
         }
         Logger.i.info("Finished fetching updates.");
+        this.eventEmitter.emit('pr0grammItemsUpdated');
     }
 
     private validateItem(item: Pr0grammItem) {

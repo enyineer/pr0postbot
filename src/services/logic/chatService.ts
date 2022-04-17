@@ -8,12 +8,10 @@ import { Bot } from 'grammy';
 import { SystemService } from './systemService';
 import { Pr0grammItemId, SendMediaCollectionGroupResult } from '../../bot/mediaCollectionGroup';
 import { MediaType, SendMediaCollectionResult } from '../../bot/mediaCollection';
-import { TimeUnitsInSeconds } from '../../bot/settings/timeContainer';
+import { EventEmitter } from 'stream';
 
 export class ChatService {
     private bot: Bot;
-    private isStarted: boolean;
-    private timer: NodeJS.Timer | null;
 
     private pr0grammItemService: Pr0grammItemService;
     private telegramChatService: TelegramChatService;
@@ -21,38 +19,23 @@ export class ChatService {
 
     private static instance: ChatService;
 
-    public static getInstance(bot: Bot): ChatService {
+    public static getInstance(bot: Bot, updateEvents: EventEmitter): ChatService {
         if (ChatService.instance === undefined) {
-            ChatService.instance = new ChatService(bot);
+            ChatService.instance = new ChatService(bot, updateEvents);
         }
         return ChatService.instance;
     }
 
-    public async start() {
-        if (!this.isStarted) {
-            await this.processChats();
-            this.timer = setInterval(this.processChats, 5 * TimeUnitsInSeconds.MINUTE * 1000);
-            this.isStarted = true;
-            Logger.i.info("Started Chat loop.");
-        }
-    }
-
-    public stop() {
-        if (this.isStarted && this.timer !== null) {
-            clearInterval(this.timer);
-            this.isStarted = false;
-            Logger.i.info("Stopped chat loop.");
-        }
-    }
-
-    private constructor(bot: Bot) {
+    private constructor(bot: Bot, updateEvents: EventEmitter) {
         this.bot = bot;
-        this.isStarted = false;
-        this.timer = null;
 
         this.pr0grammItemService = new Pr0grammItemService();
         this.telegramChatService = new TelegramChatService();
         this.shownItemsOnChatsService = new ShownItemsOnChatsService();
+
+        updateEvents.on("pr0grammItemsUpdated", async () => {
+            await this.processChats();
+        });
     }
 
     private processChats = async () => {
