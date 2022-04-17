@@ -1,10 +1,7 @@
-import { DateTime } from 'luxon';
-
 export class SystemService {
 
     private static instance: SystemService;
 
-    private _lastStartup: DateTime | null;
     private readonly _BOT_TOKEN: string;
     private readonly _MAX_ITEM_AMOUNT: number;
     private readonly _PR0GRAMM_IMAGE_CDN: string;
@@ -23,8 +20,6 @@ export class SystemService {
     }
 
     private constructor() {
-        this._lastStartup = null;
-
         this._BOT_TOKEN = this.getEnv("BOT_TOKEN");
         this._MAX_ITEM_AMOUNT = parseInt(this.getEnv("MAX_ITEM_AMOUNT", true));
         this._PR0GRAMM_IMAGE_CDN = this.getEnv("PR0GRAMM_IMAGE_CDN");
@@ -45,20 +40,6 @@ export class SystemService {
             throw new Error(`${name} in .env should be numeric but is not`)
         }
         return val;
-    }
-
-    get lastStartup(): DateTime {
-        if (this._lastStartup === null) {
-            throw new Error("lastStartup is not set in SystemService.");
-        }
-        return this._lastStartup;
-    }
-
-    set lastStartup(lastStartup: DateTime) {
-        if (this._lastStartup !== null) {
-            throw new Error("lastStartup has already been set in SystemService.");
-        }
-        this._lastStartup = lastStartup;
     }
 
     get BOT_TOKEN(): string {

@@ -5,7 +5,6 @@ import { DateTime } from "luxon";
 import { Pr0grammItemCollection } from '../../bot/pr0grammItemCollection';
 import { ShownItemsOnChatsService } from '../database/shownItemsOnChatsService';
 import { Bot } from 'grammy';
-import { SystemService } from './systemService';
 import { Pr0grammItemId, SendMediaCollectionGroupResult } from '../../bot/mediaCollectionGroup';
 import { MediaType, SendMediaCollectionResult } from '../../bot/mediaCollection';
 import { EventEmitter } from 'stream';
@@ -59,13 +58,6 @@ export class ChatService {
                 createdAt: {
                     gte: DateTime.now().minus({ day: 1 }).toJSDate(),
                 },
-                // Also only retrieve items that were discovered after the last startup to prevent spam
-                // if the bot has been down for a longer period of time
-                AND: {
-                    createdAt: {
-                        gte: SystemService.getInstance().lastStartup.toJSDate()
-                    }
-                }
             }
         });
 
