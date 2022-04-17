@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "prisma generate && prisma migrate deploy && yarn build && pm2 start ecosystem.config.js",
+    "start": "yarn && prisma generate && prisma migrate deploy && yarn build && pm2 start ecosystem.config.js",
     "stop": "pm2 stop ecosystem.config.js",
     "update": "git pull && yarn stop && yarn start",
     "test": "jest",
