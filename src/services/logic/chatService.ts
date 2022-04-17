@@ -69,6 +69,8 @@ export class ChatService {
             }
         });
 
+        Logger.i.info(`Found ${itemsLast24HoursAfterStart.length} potential new items.`);
+
         const itemsCollection = new Pr0grammItemCollection(itemsLast24HoursAfterStart);
 
         // Find all active chats
@@ -120,6 +122,8 @@ export class ChatService {
                 })
                 // Sort by highest benis, promoted-id and date and filter out excess items
                 .filterHighestBenis(chat.maxAmount);
+            
+            Logger.i.info(`${filteredItemsCollection.items.length} items left to be shown after filtering.`);
 
             const filteredMediaCollectionGroup = filteredItemsCollection.toMediaCollectionGroup();
 
