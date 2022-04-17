@@ -22,7 +22,7 @@ export class SettingsMenu extends CustomMenu {
     getMenu = (): Menu => {
         const menu = new Menu(this.getMenuIdentifier())
         .text(
-            "Filter",
+            "👀 Filter",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
                     await ctx.editMessageText(FilterMenu.getInstance().getMenuText());
@@ -31,7 +31,7 @@ export class SettingsMenu extends CustomMenu {
             }
         )
         .text(
-            "Intervall",
+            "⏲️ Intervall",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
                     await ctx.editMessageText(SendIntervalMenu.getInstance().getMenuText());
@@ -40,7 +40,7 @@ export class SettingsMenu extends CustomMenu {
             }
         ).row()
         .text(
-            "Max. Nachrichten",
+            "✉️ Max. Nachrichten",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
                     await ctx.editMessageText(MaxAmountMenu.getInstance().getMenuText());
@@ -49,7 +49,7 @@ export class SettingsMenu extends CustomMenu {
             }
         )
         .text(
-            "Mindestbenis",
+            "➕ Mindestbenis",
             async (ctx) => {
                 if (await this.canClickMenu(ctx)) {
                     await ctx.editMessageText(MinBenisMenu.getInstance().getMenuText());
