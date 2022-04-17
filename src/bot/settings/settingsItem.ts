@@ -6,7 +6,8 @@ export class SettingsItem<T extends Stringable> {
     }
 
     isValidValue(value: T) {
-        return this.findIndex(value) > -1;
+        const foundIndex = this._validValues.map(el => el.toString()).indexOf(value.toString());
+        return foundIndex > -1;
     }
 
     previousValue(currentValue: T): T | null {
@@ -37,7 +38,8 @@ export class SettingsItem<T extends Stringable> {
         const currentIndex = this._validValues.map(el => el.toString()).indexOf(currentValue.toString());
 
         if (currentIndex === -1) {
-            throw new Error(`Could not find currentValue ${JSON.stringify(currentValue, null, 2)} in validValues ${JSON.stringify(this._validValues, null, 2)}`);
+            // Use first value of valid values of an old value is set
+            return 0;
         }
 
         return currentIndex;
