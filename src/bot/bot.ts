@@ -84,9 +84,9 @@ export class Bot {
         });
     }
 
-    private startUpdateLoops() {
-        this.pr0grammService.start();
-        this.chatService.start();
+    private async startUpdateLoops() {
+        const eventEmitter = await this.pr0grammService.start();
+        this.chatService.start(eventEmitter);
     }
 
 }

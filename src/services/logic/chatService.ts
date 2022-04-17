@@ -19,20 +19,22 @@ export class ChatService {
 
     private static instance: ChatService;
 
-    public static getInstance(bot: Bot, updateEvents: EventEmitter): ChatService {
+    public static getInstance(bot: Bot): ChatService {
         if (ChatService.instance === undefined) {
-            ChatService.instance = new ChatService(bot, updateEvents);
+            ChatService.instance = new ChatService(bot);
         }
         return ChatService.instance;
     }
 
-    private constructor(bot: Bot, updateEvents: EventEmitter) {
+    private constructor(bot: Bot) {
         this.bot = bot;
 
         this.pr0grammItemService = new Pr0grammItemService();
         this.telegramChatService = new TelegramChatService();
         this.shownItemsOnChatsService = new ShownItemsOnChatsService();
+    }
 
+    start(updateEvents: EventEmitter) {
         updateEvents.on("pr0grammItemsUpdated", async () => {
             await this.processChats();
         });
