@@ -57,10 +57,12 @@ export class TelegramChatService {
         return await this.upsert({
             create: {
                 id: chatId,
-                active
+                active,
+                lastUpdate: DateTime.now().toJSDate()
             },
             update: {
-                active
+                active,
+                lastUpdate: DateTime.now().toJSDate()
             },
             where: {
                 id: chatId
