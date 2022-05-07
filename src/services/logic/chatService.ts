@@ -8,7 +8,6 @@ import { Bot } from 'grammy';
 import { Pr0grammItemId, SendMediaCollectionGroupResult } from '../../bot/mediaCollectionGroup';
 import { MediaType, SendMediaCollectionResult } from '../../bot/mediaCollection';
 import { EventEmitter } from 'stream';
-import { SystemService } from './systemService';
 
 export class ChatService {
     private bot: Bot;
@@ -103,8 +102,6 @@ export class ChatService {
                 .removeIds(shownItemIds)
                 // Filter out all items that are older than the chat
                 .filterNewerThan(DateTime.fromJSDate(chat.createdAt))
-                // Filter out all items that are older than the last startup
-                .filterNewerThan(SystemService.getInstance().startupTime)
                 // Filter out all items that don't match the chats flags
                 .filterByFlags({
                     sfw: chat.sfw,
