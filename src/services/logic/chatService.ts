@@ -100,8 +100,8 @@ export class ChatService {
                 .filterByBenis(chat.minBenis)
                 // Filter out all items that have already been shown
                 .removeIds(shownItemIds)
-                // Filter out all items that are older than the chat
-                .filterNewerThan(DateTime.fromJSDate(chat.createdAt))
+                // Filter out all items that are older than the last update
+                .filterNewerThan(DateTime.fromJSDate(chat.lastUpdate))
                 // Filter out all items that don't match the chats flags
                 .filterByFlags({
                     sfw: chat.sfw,
