@@ -1,5 +1,5 @@
 //import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { Bot as GrammyBot } from "grammy";
+import { Bot as GrammyBot, Context, Filter } from "grammy";
 import { Logger } from '../logger/logger';
 import { Pr0grammService } from "../services/logic/pr0grammService";
 import { TelegramChatService } from "../services/database/telegramChatService";
@@ -28,6 +28,7 @@ export class Bot {
         //const throttler = apiThrottler();
         //this.bot.api.config.use(throttler);
 
+        this.setupStartAction(this.bot);
         this.setupMyChatMemberAction(this.bot);
         this.setUpSettingsCommand(this.bot);
 
@@ -35,10 +36,34 @@ export class Bot {
             Logger.i.error("Caught bot error", err);
         });
 
-        run(this.bot);
-        Logger.i.info("Bot started");
+        this.bot.init()
+            .then(() => {
+                run(this.bot);
+                Logger.i.info(`Bot started - https://t.me/${this.bot.botInfo.username}`);
+                this.startUpdateLoops();
+            });
+    }
 
-        this.startUpdateLoops();
+    private async setActive(ctx: Filter<Context, "my_chat_member"> | Filter<Context, "msg::bot_command">, active: boolean) {
+        await this.telegramChatService.setActive(ctx.chat.id, active);
+        if (active) {
+            ctx.reply(
+                `Ich schicke ${ctx.chat.type === 'private' ? 'dir' : 'euch'} jetzt die neusten beliebten Posts von Pr0gramm. Benutze /settings um die Einstellungen anzupassen.`
+            );
+            Logger.i.info(
+                `Joined chat ${ctx.chat.id}`
+            );
+        } else {
+            Logger.i.info(
+                `Left chat ${ctx.chat.id}`
+            );
+        }
+    }
+
+    private async setupStartAction(bot: GrammyBot) {
+        bot.command('start', ctx => {
+            this.setActive(ctx, true);
+        });
     }
 
     private setupMyChatMemberAction(bot: GrammyBot) {
@@ -47,21 +72,12 @@ export class Bot {
                 case "administrator":
                 case "creator":
                 case "member":
-                    await this.telegramChatService.setActive(ctx.chat.id, true);
-                    ctx.reply(
-                        "Ich schicke euch jetzt die neusten beliebten Posts von Pr0gramm. Benutze /settings um die Einstellungen anzupassen."
-                    );
-                    Logger.i.info(
-                        `Joined chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`
-                    );
+                    await this.setActive(ctx, true);
                     break;
                 case "kicked":
                 case "left":
                     // Only set chats to inactive to prevent foreign key inconsistencies
-                    await this.telegramChatService.setActive(ctx.chat.id, false);
-                    Logger.i.info(
-                        `Left chat ${ctx.chat.id} - New status: ${ctx.myChatMember.new_chat_member.status}`
-                    );
+                    await this.setActive(ctx, false);
                     break;
             }
         });
