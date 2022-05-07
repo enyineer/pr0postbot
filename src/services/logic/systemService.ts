@@ -1,7 +1,10 @@
+import { DateTime } from 'luxon';
+
 export class SystemService {
 
     private static instance: SystemService;
 
+    private _startupTime: DateTime;
     private readonly _BOT_TOKEN: string;
     private readonly _MAX_ITEM_AMOUNT: number;
     private readonly _PR0GRAMM_IMAGE_CDN: string;
@@ -27,6 +30,7 @@ export class SystemService {
         this._PR0GRAMM_ITEMS_ENDPOINT = this.getEnv("PR0GRAMM_ITEMS_ENDPOINT");
         this._PR0GRAMM_ITEMS_FLAGS = parseInt(this.getEnv("PR0GRAMM_ITEMS_FLAGS", true));
         this._PR0GRAMM_COOKIES = this.getEnv("PR0GRAMM_COOKIES");
+        this._startupTime = DateTime.now();
     }
 
     private getEnv(name: string, shouldBeNumber = false): string {
@@ -70,6 +74,14 @@ export class SystemService {
 
     get PR0GRAMM_COOKIES(): string {
         return this._PR0GRAMM_COOKIES;
+    }
+
+    set startupTime(time: DateTime) {
+        this._startupTime = time;
+    }
+
+    get startupTime(): DateTime {
+        return this._startupTime;
     }
 
 }
