@@ -50,7 +50,7 @@ test('filter by highest benis', () => {
 });
 
 test('mediaCollection contains all items', () => {
-    const mediaCollection = collection.toMediaCollectionGroup();
+    const mediaCollection = collection.toMediaCollectionGroup(true);
     expect(mediaCollection.audios.collection.length).toEqual(0);
     expect(mediaCollection.documents.collection.length).toEqual(0);
     expect(mediaCollection.photosAndVideos.collection.length).toEqual(items.length);
@@ -61,7 +61,7 @@ test('mediaCollection contains all items with large image as document', () => {
     largeSfwImage.width = 100;
     largeSfwImage.height = 2000;
     const collectionWithLargeSfwImage = new Pr0grammItemCollection([...items, largeSfwImage]);
-    const mediaCollection = collectionWithLargeSfwImage.toMediaCollectionGroup();
+    const mediaCollection = collectionWithLargeSfwImage.toMediaCollectionGroup(true);
     expect(mediaCollection.audios.collection.length).toEqual(0);
     expect(mediaCollection.documents.collection.length).toEqual(1);
     expect(mediaCollection.photosAndVideos.collection.length).toEqual(items.length);
