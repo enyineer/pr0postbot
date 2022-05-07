@@ -65,9 +65,8 @@ export class Pr0grammService {
 
         const itemsEndpoint = SystemService.getInstance().PR0GRAMM_ITEMS_ENDPOINT;
         const itemsFlags = SystemService.getInstance().PR0GRAMM_ITEMS_FLAGS;
-        const itemsPromoted = SystemService.getInstance().PR0GRAMM_ITEMS_PROMOTED;
 
-        const response = await fetch(`${itemsEndpoint}?flags=${itemsFlags}&promoted=${itemsPromoted}`, {
+        const response = await fetch(`${itemsEndpoint}?flags=${itemsFlags}&promoted=0`, {
             headers
         });
 

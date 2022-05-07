@@ -24,6 +24,8 @@ model TelegramChat {
   updatedAt            DateTime            @updatedAt
   shownItems           ShownItemsOnChats[]
   active               Boolean             @default(true)
+  showText             Boolean             @default(true)
+  showNew              Boolean             @default(false)
 }
 
 model Pr0grammItem {

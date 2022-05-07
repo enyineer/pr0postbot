@@ -94,6 +94,8 @@ export class ChatService {
             const shownItemIds = shownMessages.map(el => el.pr0grammItemId);
 
             const filteredItemsCollection = itemsCollection
+                // Filter out all new posts if chat has new posts disabled
+                .filterNew(chat.showNew)
                 // Filter out all items that don't match the chats minBenis
                 .filterByBenis(chat.minBenis)
                 // Filter out all items that have already been shown
@@ -111,7 +113,7 @@ export class ChatService {
             
             Logger.i.info(`${filteredItemsCollection.items.length} items left to be shown after filtering.`);
 
-            const filteredMediaCollectionGroup = filteredItemsCollection.toMediaCollectionGroup();
+            const filteredMediaCollectionGroup = filteredItemsCollection.toMediaCollectionGroup(chat.showText);
 
             const sendMediaResult = await filteredMediaCollectionGroup.send(this.bot, parseInt(chat.id.toString()));
 

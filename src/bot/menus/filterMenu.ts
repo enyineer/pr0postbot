@@ -23,6 +23,15 @@ export class FilterMenu extends CustomMenu {
         .text(
             async (ctx) =>
                 ctx.chat &&
+                    (await this.settings.isNewEnabled(ctx.chat.id))
+                    ? "✅ Neu"
+                    : "❌ Neu",
+            async (ctx) =>
+                this.toggleNewPostsHandler(ctx, this.settings)
+        ).row()
+        .text(
+            async (ctx) =>
+                ctx.chat &&
                     (await this.settings.isFilterFlagEnabled(ctx.chat.id, FilterFlags.SFW))
                     ? "SFW ✅"
                     : "SFW ❌",
@@ -66,6 +75,24 @@ export class FilterMenu extends CustomMenu {
         if (await this.canClickMenu(ctx)) {
             try {
                 ctx.chat && (await settings.toggleFilterFlag(ctx.chat.id, type));
+                await ctx.menu.update();
+            } catch (err) {
+                if (err instanceof Error) {
+                    return ctx.answerCallbackQuery({
+                        text: err.message,
+                    });
+                }
+            }
+        }
+    };
+
+    private toggleNewPostsHandler = async (
+        ctx: Filter<Context, "callback_query"> & MenuFlavor,
+        settings: Settings
+    ) => {
+        if (await this.canClickMenu(ctx)) {
+            try {
+                ctx.chat && (await settings.toggleNewPosts(ctx.chat.id));
                 await ctx.menu.update();
             } catch (err) {
                 if (err instanceof Error) {

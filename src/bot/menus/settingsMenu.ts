@@ -4,6 +4,7 @@ import { MaxAmountMenu } from './maxAmountMenu';
 import { CustomMenu } from './menu';
 import { MinBenisMenu } from './minBenisMenu';
 import { SendIntervalMenu } from './sendIntervalMenu';
+import { StyleMenu } from './styleMenu';
 
 export class SettingsMenu extends CustomMenu {
     private static instance: SettingsMenu;
@@ -57,12 +58,22 @@ export class SettingsMenu extends CustomMenu {
                 }
             }
         ).row()
+        .text(
+            "🔎 Ansicht",
+            async (ctx) => {
+                if (await this.canClickMenu(ctx)) {
+                    await ctx.menu.nav(StyleMenu.getInstance().getMenuIdentifier(), { immediate: false });
+                    await ctx.editMessageText(StyleMenu.getInstance().getMenuText());
+                }
+            }
+        ).row()
 
         menu.register([
             FilterMenu.getInstance().getMenu(),
             SendIntervalMenu.getInstance().getMenu(),
             MaxAmountMenu.getInstance().getMenu(),
-            MinBenisMenu.getInstance().getMenu()
+            MinBenisMenu.getInstance().getMenu(),
+            StyleMenu.getInstance().getMenu()
         ]);
 
         return menu;

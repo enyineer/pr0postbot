@@ -54,8 +54,19 @@ export class Pr0grammItemCollection {
         return newCollection;
     }
 
-    toMediaCollectionGroup() {
-        return MediaCollectionGroup.fromItems(this._items);
+    toMediaCollectionGroup(showText: boolean) {
+        return MediaCollectionGroup.fromItems(this._items, showText);
+    }
+
+    filterNew(showNew: boolean) {
+        Logger.i.debug(`Before filterNew: ${this.items.length}`);
+        if (showNew) {
+            Logger.i.debug(`Filter not applied.`);
+            return this;
+        }
+        const newCollection = new Pr0grammItemCollection(this._items.filter(el => el.promoted !== 0));
+        Logger.i.debug(`After filterNew: ${newCollection.items.length}`);
+        return newCollection;
     }
 
     filterHighestBenis(amount: number) {

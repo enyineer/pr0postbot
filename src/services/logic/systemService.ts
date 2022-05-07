@@ -9,7 +9,6 @@ export class SystemService {
     private readonly _PR0GRAMM_SITE: string;
     private readonly _PR0GRAMM_ITEMS_ENDPOINT: string;
     private readonly _PR0GRAMM_ITEMS_FLAGS: number;
-    private readonly _PR0GRAMM_ITEMS_PROMOTED: number;
     private readonly _PR0GRAMM_COOKIES: string;
 
     static getInstance(): SystemService {
@@ -27,7 +26,6 @@ export class SystemService {
         this._PR0GRAMM_SITE = this.getEnv("PR0GRAMM_SITE");
         this._PR0GRAMM_ITEMS_ENDPOINT = this.getEnv("PR0GRAMM_ITEMS_ENDPOINT");
         this._PR0GRAMM_ITEMS_FLAGS = parseInt(this.getEnv("PR0GRAMM_ITEMS_FLAGS", true));
-        this._PR0GRAMM_ITEMS_PROMOTED = parseInt(this.getEnv("PR0GRAMM_ITEMS_PROMOTED", true));
         this._PR0GRAMM_COOKIES = this.getEnv("PR0GRAMM_COOKIES");
     }
 
@@ -68,10 +66,6 @@ export class SystemService {
 
     get PR0GRAMM_ITEMS_FLAGS(): number {
         return this._PR0GRAMM_ITEMS_FLAGS;
-    }
-
-    get PR0GRAMM_ITEMS_PROMOTED(): number {
-        return this._PR0GRAMM_ITEMS_PROMOTED;
     }
 
     get PR0GRAMM_COOKIES(): string {

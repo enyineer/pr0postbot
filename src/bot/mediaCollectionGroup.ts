@@ -49,7 +49,7 @@ export class MediaCollectionGroup {
         return this._photosAndVideos;
     }
 
-    public static fromItems(items: Pr0grammItem[]): MediaCollectionGroup {
+    public static fromItems(items: Pr0grammItem[], showText: boolean): MediaCollectionGroup {
         const newMediaCollectionGroup = new MediaCollectionGroup();
 
         for (const item of items) {
@@ -62,7 +62,7 @@ export class MediaCollectionGroup {
                 newMediaCollectionGroup.addPhotoOrVideo({
                     type: "video",
                     media: imageUrl,
-                    caption,
+                    caption: showText ? caption : "",
                     parse_mode: "HTML",
                     pr0grammId: item.id
                 });
@@ -72,7 +72,7 @@ export class MediaCollectionGroup {
                     newMediaCollectionGroup.addDocument({
                         type: "document",
                         media: imageUrl,
-                        caption,
+                        caption: showText ? caption : "",
                         parse_mode: "HTML",
                         pr0grammId: item.id
                     });
@@ -80,7 +80,7 @@ export class MediaCollectionGroup {
                     newMediaCollectionGroup.addPhotoOrVideo({
                         type: "photo",
                         media: imageUrl,
-                        caption,
+                        caption: showText ? caption : "",
                         parse_mode: "HTML",
                         pr0grammId: item.id
                     });

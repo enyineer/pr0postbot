@@ -97,6 +97,26 @@ export class Settings {
         return sendInterval;
     }
 
+    async toggleShowText(chatId: number): Promise<boolean> {
+        const chat = await this.telegramChatService.findUnique({ id: chatId });
+
+        if (chat === null) {
+            throw new Error(`Trying to toggle textFlag for non existent chat ${chatId}`);
+        }
+
+        await this.telegramChatService.update({
+            data: {
+                ...chat,
+                showText: !chat.showText,
+            },
+            where: {
+                id: chat.id,
+            }
+        });
+
+        return !chat.showText;
+    }
+
     async toggleFilterFlag(chatId: number, filter: FilterFlags): Promise<boolean> {
         const chat = await this.telegramChatService.findUnique({ id: chatId });
 
@@ -149,7 +169,8 @@ export class Settings {
         return {
             maxAmount: chat.maxAmount,
             minBenis: chat.minBenis,
-            sendInterval: TimeContainer.fromSeconds(chat.sendInterval)
+            sendInterval: TimeContainer.fromSeconds(chat.sendInterval),
+            showText: chat.showText,
         }
     }
 
@@ -163,6 +184,36 @@ export class Settings {
 
     get sendIntervalSettings(): SettingsItem<TimeContainer> {
         return this._sendIntervalSettings;
+    }
+
+    async isNewEnabled(chatId: number): Promise<boolean> {
+        let chat = await this.telegramChatService.findUnique({ id: chatId });
+
+        if (chat === null) {
+            chat = await this.telegramChatService.create({ id: chatId });
+        }
+
+        return chat.showNew;
+    }
+
+    async toggleNewPosts(chatId: number): Promise<boolean> {
+        const chat = await this.telegramChatService.findUnique({ id: chatId });
+
+        if (chat === null) {
+            throw new Error(`Trying to toggle new posts for non existent chat ${chatId}`);
+        }
+
+        await this.telegramChatService.update({
+            data: {
+                ...chat,
+                showNew: !chat.showNew
+            },
+            where: {
+                id: chat.id
+            }
+        });
+
+        return !chat.showNew;
     }
 
     async isFilterFlagEnabled(chatId: number, filter: FilterFlags): Promise<boolean> {
@@ -200,6 +251,7 @@ export type ChatSettings = {
     maxAmount: number;
     minBenis: number;
     sendInterval: TimeContainer;
+    showText: boolean;
 }
 
 export enum FilterFlags {
