@@ -211,4 +211,5 @@ export type Pr0grammItem = {
     user: string;
     mark: number;
     gift: number;
+    previes: string;
 }
