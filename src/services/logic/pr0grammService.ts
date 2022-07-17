@@ -89,9 +89,45 @@ export class Pr0grammService {
                     continue;
                 }
 
+                const {
+                    audio,
+                    created,
+                    down,
+                    flags,
+                    fullsize,
+                    gift,
+                    height,
+                    id,
+                    image,
+                    mark,
+                    promoted,
+                    source,
+                    thumb,
+                    up,
+                    user,
+                    userId,
+                    width
+                } = item;
                 await this.pr0grammItemService.upsert({
+                    
                     create: {
-                        ...item,
+                        audio,
+                        created,
+                        down,
+                        flags,
+                        fullsize,
+                        gift,
+                        height,
+                        id,
+                        image,
+                        mark,
+                        promoted,
+                        source,
+                        thumb,
+                        up,
+                        user,
+                        userId,
+                        width,
                         cold: this.isColdStart
                     },
                     update: item,
