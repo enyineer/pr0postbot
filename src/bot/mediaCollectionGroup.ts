@@ -53,7 +53,7 @@ export class MediaCollectionGroup {
         const newMediaCollectionGroup = new MediaCollectionGroup();
 
         for (const item of items) {
-            const postMarkdown = `<a href="${SystemService.getInstance().PR0GRAMM_SITE}/top/${item.id}">Post</a>`;
+            const postMarkdown = `<a href="${SystemService.getInstance().PR0GRAMM_SITE}/new/${item.id}">Post</a>`;
             const userMarkdown = `<a href="${SystemService.getInstance().PR0GRAMM_SITE}/user/${item.user}">${item.user}</a>`;
             const caption = `${postMarkdown} von ${userMarkdown}`;
     
