@@ -43,7 +43,8 @@ export const createFakeItem = (opts: {
         user: opts.user,
         userId: opts.userId,
         width: opts.width,
-        cold: false
+        cold: false,
+        preview: ""
     }
 }
 

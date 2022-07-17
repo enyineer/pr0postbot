@@ -50,6 +50,7 @@ model Pr0grammItem {
   updatedAt  DateTime            @updatedAt
   cold       Boolean             @default(false)
   shownChats ShownItemsOnChats[]
+  preview    String              @default("")
 }
 
 model ShownItemsOnChats {

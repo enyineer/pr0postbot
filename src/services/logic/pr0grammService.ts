@@ -106,7 +106,8 @@ export class Pr0grammService {
                     up,
                     user,
                     userId,
-                    width
+                    width,
+                    preview
                 } = item;
                 await this.pr0grammItemService.upsert({
                     
@@ -128,6 +129,7 @@ export class Pr0grammService {
                         user,
                         userId,
                         width,
+                        preview,
                         cold: this.isColdStart
                     },
                     update: item,
@@ -211,5 +213,5 @@ export type Pr0grammItem = {
     user: string;
     mark: number;
     gift: number;
-    previes: string;
+    preview: string;
 }
