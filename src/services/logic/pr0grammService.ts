@@ -129,7 +129,7 @@ export class Pr0grammService {
                         user,
                         userId,
                         width,
-                        preview,
+                        preview: preview === null ? "" : preview,
                         cold: this.isColdStart
                     },
                     update: item,
