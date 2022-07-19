@@ -110,7 +110,6 @@ export class Pr0grammService {
                     preview
                 } = item;
                 await this.pr0grammItemService.upsert({
-                    
                     create: {
                         audio,
                         created,
@@ -132,7 +131,16 @@ export class Pr0grammService {
                         preview: preview === null ? "" : preview,
                         cold: this.isColdStart
                     },
-                    update: item,
+                    update: {
+                        down,
+                        flags,
+                        fullsize,
+                        gift,
+                        image,
+                        mark,
+                        promoted,
+                        up
+                    },
                     where: {
                         id: item.id
                     }
