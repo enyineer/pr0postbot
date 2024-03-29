@@ -27,13 +27,6 @@ Der Bot erfasst in dieser Datenbank zusätzlich jeden Post den er auf pr0gramm g
 
 # How to start 🚀
 
-### Installieren von Yarn und den Abhängigkeiten
-
-```sh
-$ npm i -g yarn
-$ yarn
-```
-
 ### Konfiguration
 
 Kopieren der Beispiel-Environmentsdatei
@@ -55,12 +48,12 @@ Der folgende Prozess ist leider noch etwas unschön, allerdings ist ein automati
 
 Starte den Bot
 ```sh
-$ yarn start
+$ pnpm run start
 ```
 
 Stoppe den Bot mit
 ```
-$ yarn stop
+$ pnpm run stop
 ```
 
 ### Logs und monitor
@@ -69,5 +62,5 @@ Die Logs findest du per default unter `$HOME/.pm2/logs/pr0postbot-*.log`.
 
 Nutze pm2 monit um die Aktivität deines Bots zu monitoren
 ```sh
-$ yarn pm2 monit
+$ pnpm pm2 monit
 ```
