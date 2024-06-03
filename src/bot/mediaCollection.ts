@@ -1,7 +1,7 @@
 import { Bot } from 'grammy';
-import { InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo } from 'grammy/out/platform.node';
 import { Logger } from '../logger/logger';
 import { Pr0grammItemId } from './mediaCollectionGroup';
+import { InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo } from 'grammy/types';
 
 export class MediaCollection<T extends MediaType & Pr0grammItemId> {
 

@@ -1,5 +1,5 @@
 import { Bot } from 'grammy';
-import { InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo } from 'grammy/out/platform.node';
+import { InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo } from 'grammy/types';
 import { Logger } from '../logger/logger';
 import { Pr0grammItem } from '../services/logic/pr0grammService';
 import { SystemService } from '../services/logic/systemService';
