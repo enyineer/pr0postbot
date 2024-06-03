@@ -1,5 +1,4 @@
 import EventEmitter from 'events';
-import fetch from 'node-fetch';
 import { TimeUnitsInSeconds } from '../../bot/settings/timeContainer';
 import { Logger } from '../../logger/logger';
 import { Pr0grammItemService } from '../database/pr0grammItemService';
