@@ -53,14 +53,21 @@ export class Pr0grammService {
     private async fetchItems(): Promise<Pr0grammItemResponse> {
         const headers = {
             "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Accept-Language": "de,en-US;q=0.7,en;q=0.3",
-            "Cache-Control": "no-cache",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Accept-Language": "en-US,en;q=0.5",
             "Cookie": SystemService.getInstance().PR0GRAMM_COOKIES,
             "Host": "pr0gramm.com",
             "Referer": "https://pr0gramm.com",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0",
-            "X-Requested-With": "XMLHttpRequest"
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:126.0) Gecko/20100101 Firefox/126.0",
+            "X-Requested-With": "XMLHttpRequest",
+            "DNT": "1",
+            "Sec-GPC": "1",
+            "Alt-Used": "pr0gramm.com",
+            "Connection": "keep-alive",
+            "Sec-Fetch-Fest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            "TE": "trailers",
         }
 
         const itemsEndpoint = SystemService.getInstance().PR0GRAMM_ITEMS_ENDPOINT;
@@ -71,7 +78,8 @@ export class Pr0grammService {
         });
 
         if (response.status !== 200) {
-            throw new Error(`Got invalid status code ${response.status} while trying to get new pr0gramm items.`);
+          const text = await response.text();
+          throw new Error(`Got invalid status code ${response.status} while trying to get new pr0gramm items: ${text}`);
         }
         
         return await response.json() as Pr0grammItemResponse;
