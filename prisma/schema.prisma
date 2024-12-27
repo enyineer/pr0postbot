@@ -45,7 +45,7 @@ model Pr0grammItem {
   flags      Int
   user       String
   mark       Int
-  gift       Int
+  gift       Int?
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   cold       Boolean             @default(false)

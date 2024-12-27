@@ -232,6 +232,6 @@ export type Pr0grammItem = {
   flags: number;
   user: string;
   mark: number;
-  gift: number;
+  gift?: number;
   preview: string;
 };
