@@ -227,13 +227,13 @@ const pr0grammItemSchema = z.object({
   user: z.string(),
   mark: z.number(),
   gift: z.number().optional(),
-  preview: z.string(),
+  preview: z.string().nullable(),
 });
 
 const pr0grammItemResponseSchema = z.object({
   atEnd: z.boolean(),
   atStart: z.boolean(),
-  error: z.string(),
+  error: z.string().nullable(),
   items: z.array(pr0grammItemSchema),
   ts: z.number(),
   cache: z.string(),
