@@ -3,6 +3,7 @@ import { TimeUnitsInSeconds } from "../../bot/settings/timeContainer";
 import { Logger } from "../../logger/logger";
 import { Pr0grammItemService } from "../database/pr0grammItemService";
 import { SystemService } from "./systemService";
+import { z } from "zod";
 export class Pr0grammService {
   private isStarted: boolean;
   private isColdStart: boolean;
@@ -86,7 +87,11 @@ export class Pr0grammService {
       );
     }
 
-    return (await response.json()) as Pr0grammItemResponse;
+    const data = await response.json();
+
+    const parsedData = await pr0grammItemResponseSchema.parseAsync(data);
+
+    return parsedData;
   }
 
   private processItems = async () => {
@@ -204,34 +209,38 @@ export class Pr0grammService {
   }
 }
 
-export type Pr0grammItemResponse = {
-  atEnd: boolean;
-  atStart: boolean;
-  error: string;
-  items: Pr0grammItem[];
-  ts: number;
-  cache: string;
-  rt: number;
-  qc: number;
-};
+const pr0grammItemSchema = z.object({
+  id: z.number(),
+  promoted: z.number(),
+  userId: z.number(),
+  up: z.number(),
+  down: z.number(),
+  created: z.number(),
+  image: z.string(),
+  thumb: z.string(),
+  fullsize: z.string(),
+  width: z.number(),
+  height: z.number(),
+  audio: z.boolean(),
+  source: z.string(),
+  flags: z.number(),
+  user: z.string(),
+  mark: z.number(),
+  gift: z.number().optional(),
+  preview: z.string(),
+});
 
-export type Pr0grammItem = {
-  id: number;
-  promoted: number;
-  userId: number;
-  up: number;
-  down: number;
-  created: number;
-  image: string;
-  thumb: string;
-  fullsize: string;
-  width: number;
-  height: number;
-  audio: boolean;
-  source: string;
-  flags: number;
-  user: string;
-  mark: number;
-  gift?: number;
-  preview: string;
-};
+const pr0grammItemResponseSchema = z.object({
+  atEnd: z.boolean(),
+  atStart: z.boolean(),
+  error: z.string(),
+  items: z.array(pr0grammItemSchema),
+  ts: z.number(),
+  cache: z.string(),
+  rt: z.number(),
+  qc: z.number(),
+});
+
+export type Pr0grammItemResponse = z.infer<typeof pr0grammItemResponseSchema>;
+
+export type Pr0grammItem = z.infer<typeof pr0grammItemSchema>;
