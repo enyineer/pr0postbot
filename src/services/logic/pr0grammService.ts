@@ -7,7 +7,7 @@ import { z } from "zod";
 export class Pr0grammService {
   private isStarted: boolean;
   private isColdStart: boolean;
-  private timer: NodeJS.Timer | null;
+  private timer: ReturnType<typeof setInterval> | null;
   private eventEmitter = new EventEmitter();
 
   private pr0grammItemService: Pr0grammItemService;
