@@ -9,7 +9,7 @@
   "scripts": {
     "start": "pm2 start ecosystem.config.js",
     "stop": "pm2 stop ecosystem.config.js",
-    "update": "git pull && pnpm run stop && pnpm run build && pnpm run start",
+    "update": "git pull && pnpm run stop && pnpm i && pnpm run build && pnpm run start",
     "test": "jest",
     "build": "prisma generate && prisma migrate deploy && rimraf dist && tsc",
     "lint": "eslint",
