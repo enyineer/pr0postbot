@@ -236,7 +236,7 @@ const pr0grammItemResponseSchema = z.object({
   error: z.string().nullable(),
   items: z.array(pr0grammItemSchema),
   ts: z.number(),
-  cache: z.string(),
+  cache: z.string().nullable(),
   rt: z.number(),
   qc: z.number(),
 });
