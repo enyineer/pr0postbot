@@ -6,7 +6,7 @@ import {
   CommandContext,
   webhookCallback,
 } from "grammy";
-import { Logger } from "../logger/logger";
+import { logger } from "../logger/logger";
 import { Pr0grammService } from "../services/logic/pr0grammService";
 import { TelegramChatService } from "../services/database/telegramChatService";
 import { ChatService } from "../services/logic/chatService";
@@ -39,14 +39,14 @@ export class Bot {
     this.setUpSettingsCommand(this.bot);
 
     this.bot.catch((err) => {
-      Logger.i.error("Caught bot error", err);
+      logger.error("Caught bot error", err);
     });
 
     if (process.env.NODE_ENV !== "production") {
       this.bot.init().then(() => {
         this.bot.start();
         this.startUpdateLoops();
-        Logger.i.info(
+        logger.info(
           `Bot started with long polling - https://t.me/${this.bot.botInfo.username}`
         );
       });
@@ -69,21 +69,21 @@ export class Bot {
 
       http.createServer(app).listen(BOT_WEBHOOK_PORT);
 
-      Logger.i.info(`Webhook server is listening on Port ${BOT_WEBHOOK_PORT}`);
+      logger.info(`Webhook server is listening on Port ${BOT_WEBHOOK_PORT}`);
 
       this.bot.init().then(async () => {
         try {
           await this.bot.api.setWebhook(BOT_WEBHOOK_URL);
-          Logger.i.info(`Set webhook URL to ${BOT_WEBHOOK_URL}`);
+          logger.info(`Set webhook URL to ${BOT_WEBHOOK_URL}`);
         } catch (err) {
-          Logger.i.warn(
+          logger.warn(
             `Failed to setup Webhook URL - This could be because you restarted your instance too often. Open https://api.telegram.org/bot${botToken}/setWebhook?url=${BOT_WEBHOOK_URL} manually if necessary.\n${JSON.stringify(
               err
             )}`
           );
         }
         this.startUpdateLoops();
-        Logger.i.info(
+        logger.info(
           `Bot started with webhook - https://t.me/${this.bot.botInfo.username}`
         );
       });
@@ -101,9 +101,9 @@ export class Bot {
           ctx.chat.type === "private" ? "dir" : "euch"
         } jetzt die neusten beliebten Posts von Pr0gramm. Benutze /settings um die Einstellungen anzupassen.`
       );
-      Logger.i.info(`Joined chat ${ctx.chat.id}`);
+      logger.info(`Joined chat ${ctx.chat.id}`);
     } else {
-      Logger.i.info(`Left chat ${ctx.chat.id}`);
+      logger.info(`Left chat ${ctx.chat.id}`);
     }
   }
 

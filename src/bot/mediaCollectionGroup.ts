@@ -5,7 +5,7 @@ import {
   InputMediaPhoto,
   InputMediaVideo,
 } from "grammy/types";
-import { Logger } from "../logger/logger";
+import { logger } from "../logger/logger";
 import { Pr0grammItem } from "../services/logic/pr0grammService";
 import { SystemService } from "../services/logic/systemService";
 import { MediaCollection, SendMediaCollectionResult } from "./mediaCollection";
@@ -112,7 +112,7 @@ export class MediaCollectionGroup {
           });
         }
       } else {
-        Logger.i.error(`Unknown file type for image`, item);
+        logger.error(`Unknown file type for image`, item);
       }
     }
 

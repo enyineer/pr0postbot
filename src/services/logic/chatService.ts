@@ -1,4 +1,4 @@
-import { Logger } from "../../logger/logger";
+import { logger } from "../../logger/logger";
 import { Pr0grammItemService } from "../database/pr0grammItemService";
 import { TelegramChatService } from "../database/telegramChatService";
 import { DateTime } from "luxon";
@@ -45,7 +45,7 @@ export class ChatService {
 
   start(updateEvents: EventEmitter) {
     if (this.isStarted) {
-      Logger.i.warn(
+      logger.warn(
         "Preventing start of ChatService because it has already been started once."
       );
       return;
@@ -56,7 +56,7 @@ export class ChatService {
   }
 
   private processChats = async () => {
-    Logger.i.info("Processing chats...");
+    logger.info("Processing chats...");
 
     const itemsLast24HoursAfterStart = await this.pr0grammItemService.findMany({
       where: {
@@ -69,7 +69,7 @@ export class ChatService {
       },
     });
 
-    Logger.i.info(
+    logger.info(
       `Found ${itemsLast24HoursAfterStart.length} hot items from last 24 hours.`
     );
 
@@ -84,16 +84,16 @@ export class ChatService {
       },
     });
 
-    Logger.i.info(`Processing ${chats.length} active chats.`);
+    logger.info(`Processing ${chats.length} active chats.`);
 
     for (const chat of chats) {
-      Logger.i.info(`Processing updates for chat ${chat.id}...`);
+      logger.info(`Processing updates for chat ${chat.id}...`);
       const lastUpdate = DateTime.fromJSDate(chat.lastUpdate);
       const nextUpdate = lastUpdate.plus({ seconds: chat.sendInterval });
 
       // Skip this chat if the diff between the next update and now is greater than zero
       if (nextUpdate.diff(DateTime.now(), "seconds").seconds > 0) {
-        Logger.i.info(
+        logger.info(
           `Chat ${chat.id} not due yet. Next update at ${nextUpdate.toISO()}`
         );
         continue;
@@ -125,7 +125,7 @@ export class ChatService {
         // Sort by highest benis, promoted-id and date and filter out excess items
         .filterHighestBenis(chat.maxAmount);
 
-      Logger.i.info(
+      logger.info(
         `${filteredItemsCollection.items.length} items left to be shown after filtering.`
       );
 
@@ -146,10 +146,10 @@ export class ChatService {
         parseInt(chat.id.toString())
       );
 
-      Logger.i.info(`Finished processing updates for chat ${chat.id}.`);
+      logger.info(`Finished processing updates for chat ${chat.id}.`);
     }
 
-    Logger.i.info("Finished processing chats.");
+    logger.info("Finished processing chats.");
   };
 
   private async saveShownMessages(
@@ -190,7 +190,7 @@ export class ChatService {
           sendSuccess: true,
         });
       } catch (err) {
-        Logger.i.warn(
+        logger.warn(
           `Could not save successfully sent item: ${JSON.stringify(err)}`
         );
       }
@@ -212,9 +212,7 @@ export class ChatService {
           sendSuccess: false,
         });
       } catch (err) {
-        Logger.i.warn(
-          `Could not save failed sent item: ${JSON.stringify(err)}`
-        );
+        logger.warn(`Could not save failed sent item: ${JSON.stringify(err)}`);
       }
     }
   }

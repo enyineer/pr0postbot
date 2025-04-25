@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import { TimeUnitsInSeconds } from "../../bot/settings/timeContainer";
-import { Logger } from "../../logger/logger";
+import { logger } from "../../logger/logger";
 import { Pr0grammItemService } from "../database/pr0grammItemService";
 import { SystemService } from "./systemService";
 import { z } from "zod";
@@ -29,9 +29,9 @@ export class Pr0grammService {
         5 * TimeUnitsInSeconds.MINUTE * 1000
       );
       this.isStarted = true;
-      Logger.i.info("Started Pr0gramm loop.");
+      logger.info("Started Pr0gramm loop.");
     } else {
-      Logger.i.info("Pr0gramm loop is already started.");
+      logger.info("Pr0gramm loop is already started.");
     }
     return this.eventEmitter;
   }
@@ -40,7 +40,7 @@ export class Pr0grammService {
     if (this.isStarted && this.timer !== null) {
       clearInterval(this.timer);
       this.isStarted = false;
-      Logger.i.info("Stopped Pr0gramm loop.");
+      logger.info("Stopped Pr0gramm loop.");
     }
   }
 
@@ -95,11 +95,11 @@ export class Pr0grammService {
   }
 
   private processItems = async () => {
-    Logger.i.info("Fetching pr0gramm updates...");
+    logger.info("Fetching pr0gramm updates...");
     try {
       const fetchedItems = await this.fetchItems();
 
-      Logger.i.info(`Processing ${fetchedItems.items.length} items...`);
+      logger.info(`Processing ${fetchedItems.items.length} items...`);
 
       for (const item of fetchedItems.items) {
         if (!this.validateItem(item)) {
@@ -165,12 +165,12 @@ export class Pr0grammService {
       }
     } catch (err) {
       if (err instanceof Error) {
-        Logger.i.error(`Could not fetch pr0gramm update: ${err.message}`);
+        logger.error(`Could not fetch pr0gramm update: ${err.message}`);
       }
     }
-    Logger.i.info("Finished fetching updates.");
+    logger.info("Finished fetching updates.");
     if (this.isColdStart) {
-      Logger.i.info(
+      logger.info(
         "Setting isColdStart to false, next updates will be broadcasted."
       );
       this.isColdStart = false;
@@ -181,27 +181,27 @@ export class Pr0grammService {
 
   private validateItem(item: Pr0grammItem) {
     if (item.id === undefined || item.id < 1) {
-      Logger.i.error(`Item has empty id`, item);
+      logger.error(`Item has empty id`, item);
       return false;
     }
 
     if (item.user === undefined || item.user === "") {
-      Logger.i.error(`Item has empty user`, item);
+      logger.error(`Item has empty user`, item);
       return false;
     }
 
     if (item.image === undefined || item.image === "") {
-      Logger.i.error(`Item has empty image`, item);
+      logger.error(`Item has empty image`, item);
       return false;
     }
 
     if (item.height === undefined || item.height < 1) {
-      Logger.i.error(`Item has invalid height`, item);
+      logger.error(`Item has invalid height`, item);
       return false;
     }
 
     if (item.width === undefined || item.width < 1) {
-      Logger.i.error(`Item has invalid width`, item);
+      logger.error(`Item has invalid width`, item);
       return false;
     }
 
