@@ -1,0 +1,62 @@
+name: Build & Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+    # Uncomment the next section to trigger on tags:
+    # tags:
+    #   - 'v*.*.*'
+
+permissions:
+  contents: read # for checkout and tag fetching
+
+env:
+  HARBOR_REG: ${{ secrets.HARBOR_REG }} # e.g. harbor.mycompany.com
+  HARBOR_PROJECT: ${{ secrets.HARBOR_PROJECT }} # your Harbor project name
+  HARBOR_IMAGE_REPO: ${{ secrets.HARBOR_IMAGE_REPO }} # defaults to 'owner/repo'
+  HARBOR_ROBOT_USERNAME: ${{ secrets.HARBOR_ROBOT_USERNAME }} # harbor robot username
+  HARBOR_ROBOT_PASSWORD: ${{ secrets.HARBOR_ROBOT_TOKEN }} # harbor robot password
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.HARBOR_REG }}
+          username: ${{ env.HARBOR_ROBOT_USERNAME }}
+          password: ${{ env.HARBOR_ROBOT_PASSWORD }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ${{ env.HARBOR_REG }}/${{ env.HARBOR_PROJECT }}/${{ env.HARBOR_IMAGE_REPO }}:${{ github.sha }}
+            ${{ env.HARBOR_REG }}/${{ env.HARBOR_PROJECT }}/${{ env.HARBOR_IMAGE_REPO }}:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move new cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
