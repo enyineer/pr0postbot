@@ -1,0 +1,13 @@
+# Use postgres/example user/password credentials
+version: "3.1"
+
+services:
+  # For local dev: postgresql://postgres:dev@localhost:5432/shwifty
+  db:
+    image: postgres
+    container_name: pr0post-db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: dev
+    ports:
+      - 5432:5432

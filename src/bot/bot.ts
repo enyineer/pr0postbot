@@ -1,5 +1,11 @@
 //import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { Bot as GrammyBot, Context, Filter, CommandContext } from "grammy";
+import {
+  Bot as GrammyBot,
+  Context,
+  Filter,
+  CommandContext,
+  webhookCallback,
+} from "grammy";
 import { Logger } from "../logger/logger";
 import { Pr0grammService } from "../services/logic/pr0grammService";
 import { TelegramChatService } from "../services/database/telegramChatService";
@@ -7,8 +13,10 @@ import { ChatService } from "../services/logic/chatService";
 import { SettingsMenu } from "./menus/settingsMenu";
 import { Utils } from "./utils";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { run } from "@grammyjs/runner";
-import { Update } from "grammy/types";
+import http from "http";
+
+import express from "express";
+
 export class Bot {
   private readonly bot: GrammyBot;
   private readonly telegramChatService: TelegramChatService;
@@ -26,9 +34,6 @@ export class Bot {
     // Todo: Move bot out of ChatService
     this.chatService = ChatService.getInstance(this.bot);
 
-    //const throttler = apiThrottler();
-    //this.bot.api.config.use(throttler);
-
     this.setupStartAction(this.bot);
     this.setupMyChatMemberAction(this.bot);
     this.setUpSettingsCommand(this.bot);
@@ -37,11 +42,52 @@ export class Bot {
       Logger.i.error("Caught bot error", err);
     });
 
-    this.bot.init().then(() => {
-      run(this.bot);
-      Logger.i.info(`Bot started - https://t.me/${this.bot.botInfo.username}`);
-      this.startUpdateLoops();
-    });
+    if (process.env.NODE_ENV !== "production") {
+      this.bot.init().then(() => {
+        this.bot.start();
+        this.startUpdateLoops();
+        Logger.i.info(
+          `Bot started with long polling - https://t.me/${this.bot.botInfo.username}`
+        );
+      });
+    } else {
+      const BOT_WEBHOOK_URL = process.env.BOT_WEBHOOK_URL;
+      if (!BOT_WEBHOOK_URL) {
+        throw new Error("BOT_WEBHOOK_URL is not set!");
+      }
+
+      const BOT_WEBHOOK_PORT = Number.parseInt(
+        process.env.BOT_WEBHOOK_PORT ?? ""
+      );
+      if (Number.isNaN(BOT_WEBHOOK_PORT)) {
+        throw new Error("BOT_WEBHOOK_PORT is not set or not numeric!");
+      }
+
+      const app = express();
+      app.use(express.json());
+      app.use(webhookCallback(this.bot, "express"));
+
+      http.createServer(app).listen(BOT_WEBHOOK_PORT);
+
+      Logger.i.info(`Webhook server is listening on Port ${BOT_WEBHOOK_PORT}`);
+
+      this.bot.init().then(async () => {
+        try {
+          await this.bot.api.setWebhook(BOT_WEBHOOK_URL);
+          Logger.i.info(`Set webhook URL to ${BOT_WEBHOOK_URL}`);
+        } catch (err) {
+          Logger.i.warn(
+            `Failed to setup Webhook URL - This could be because you restarted your instance too often. Open https://api.telegram.org/bot${botToken}/setWebhook?url=${BOT_WEBHOOK_URL} manually if necessary.\n${JSON.stringify(
+              err
+            )}`
+          );
+        }
+        this.startUpdateLoops();
+        Logger.i.info(
+          `Bot started with webhook - https://t.me/${this.bot.botInfo.username}`
+        );
+      });
+    }
   }
 
   private async setActive(
