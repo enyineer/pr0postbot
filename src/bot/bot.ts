@@ -63,8 +63,25 @@ export class Bot {
         throw new Error("BOT_WEBHOOK_PORT is not set or not numeric!");
       }
 
+      const BOT_WEBHOOK_SECRET = process.env.BOT_WEBHOOK_SECRET;
+      if (!BOT_WEBHOOK_SECRET) {
+        throw new Error(`BOT_WEBHOOK_SECRET is not set!`);
+      }
+      if (!/[A-Za-z0-9\-_]{1,256}/.test(BOT_WEBHOOK_SECRET)) {
+        throw new Error(
+          `BOT_WEBHOOK_SECRET can only contain A-Z, a-z, 0-9, -, _ and be between 1 and 256 characters long!`
+        );
+      }
+
       const app = express();
       app.use(express.json());
+      app.use((req, res) => {
+        const secretHeader = req.headers["X-Telegram-Bot-Api-Secret-Token"];
+        if (secretHeader !== BOT_WEBHOOK_SECRET) {
+          res.status(400).send();
+          return;
+        }
+      });
       app.use(webhookCallback(this.bot, "express"));
 
       http.createServer(app).listen(BOT_WEBHOOK_PORT);
@@ -73,7 +90,9 @@ export class Bot {
 
       this.bot.init().then(async () => {
         try {
-          await this.bot.api.setWebhook(BOT_WEBHOOK_URL);
+          await this.bot.api.setWebhook(BOT_WEBHOOK_URL, {
+            secret_token: BOT_WEBHOOK_SECRET,
+          });
           logger.info(`Set webhook URL to ${BOT_WEBHOOK_URL}`);
         } catch (err) {
           logger.warn(
