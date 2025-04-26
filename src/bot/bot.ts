@@ -75,7 +75,7 @@ export class Bot {
 
       const app = express();
       app.use(express.json());
-      app.use((req, res) => {
+      app.use((req, res, next) => {
         const secretHeader =
           req.headers["X-Telegram-Bot-Api-Secret-Token"] ??
           req.headers["x-telegram-bot-api-secret-token"];
@@ -86,6 +86,7 @@ export class Bot {
           res.status(400).send();
           return;
         }
+        next();
       });
       app.use(webhookCallback(this.bot, "express"));
 
