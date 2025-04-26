@@ -76,7 +76,9 @@ export class Bot {
       const app = express();
       app.use(express.json());
       app.use((req, res) => {
-        const secretHeader = req.headers["X-Telegram-Bot-Api-Secret-Token"];
+        const secretHeader = req.headers["X-Telegram-Bot-Api-Secret-Token"] ?? [
+          "x-telegram-bot-api-secret-token",
+        ];
         if (secretHeader !== BOT_WEBHOOK_SECRET) {
           res.status(400).send();
           return;
