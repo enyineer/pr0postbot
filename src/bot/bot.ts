@@ -80,6 +80,9 @@ export class Bot {
           "x-telegram-bot-api-secret-token",
         ];
         if (secretHeader !== BOT_WEBHOOK_SECRET) {
+          logger.warn(
+            `Got request with x-telegram-bot-api-secret-token set to ${secretHeader}. Answering with 400.`
+          );
           res.status(400).send();
           return;
         }
