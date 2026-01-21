@@ -6,7 +6,7 @@ services:
   db:
     image: postgres
     container_name: pr0post-db
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: dev
     ports:
