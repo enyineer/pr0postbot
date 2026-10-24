@@ -2,7 +2,7 @@
 
 # ---- Builder ----
 # Default to Node 22 LTS; override with `--build-arg NODE_VERSION=xx-alpine`
-ARG NODE_VERSION=22.23.4-alpine
+ARG NODE_VERSION=22-alpine
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
