@@ -51,7 +51,9 @@ export class MediaCollection<T extends MediaType & Pr0grammItemId> {
         }
       } else {
         try {
-          await bot.api.sendMediaGroup(chatId, chunk);
+          // cast: MediaType includes audio, which sendMediaGroup rejects at the API
+          // level; the catch below falls back to sendSingle per item (pre-existing behavior).
+          await bot.api.sendMediaGroup(chatId, chunk as unknown as Parameters<typeof bot.api.sendMediaGroup>[1]);
           successfullySentItems.push(...chunk);
         } catch (err) {
           logger.warn(
